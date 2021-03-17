@@ -109,9 +109,7 @@ for update in updates:
                                                          chat_id)
                 if exit_code == 0:
                     print(f'output file content: {output_file}')
-                    for line in output_file:
-                        send_message(line, chat_id)
-                    send_message('Done!', chat_id)
+                    send_message('You can now connect via ssh', chat_id)
                 else:
                     print('Output file not found')
                     for line in output_file:
@@ -126,6 +124,10 @@ for update in updates:
             if  hash_m == '141398e3d78065d224cc535a984d7aa000a0429b1ead2687f16a81e05c8f5f41':
                 register_new_user(user_id)
                 send_message('Thanks, you are now registered.', chat_id)
+                send_message('To start a new session, please type "start '
+                             'jupyter"')
+                send_message('Note that the server may take a minute or two '
+                             'to reply.')
             else:
                 send_message('You are not registered as a user yet.', chat_id)
                 send_message('Please reply with the password', chat_id)
