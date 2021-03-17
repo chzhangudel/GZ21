@@ -22,7 +22,7 @@ class TaskInfo:
         print(f'Task completed: {self.name}')
 
 
-def select_experiment():
+def select_experiment(default_selection: str = ''):
     """
     Prompt user to select an experiment among all experiments in store. Return
     the name of the selected experiment.
@@ -38,11 +38,12 @@ def select_experiment():
     dict_of_exp = {exp.experiment_id: exp.name for exp in list_of_exp}
     for id_, name in dict_of_exp.items():
         print(id_, ': ', name)
-    selection = input('Select the id of an experiment: ')
+    selection = input('Select the id of an experiment: ') or default_selection
     return selection, dict_of_exp[selection]
 
 
-def select_run(sort_by=None, cols=None, merge=None, *args, **kargs) -> object:
+def select_run(sort_by=None, cols=None, merge=None,
+               default_selection: str = '', *args, **kargs) -> object:
     """
     Allows to select a run from the tracking store interactively.
 
@@ -101,7 +102,7 @@ def select_run(sort_by=None, cols=None, merge=None, *args, **kargs) -> object:
         raise Exception('No data found. Check that you correctly set \
                         the store')
     print(mlflow_runs[cols])
-    id_ = int(input('Run id?'))
+    id_ = int(input('Run id?') or default_selection)
     if id_ < 0:
         return 0
     return mlflow_runs.loc[id_, :]
