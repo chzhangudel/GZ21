@@ -131,7 +131,7 @@ for update in updates:
                 send_message('Please reply with the password', chat_id)
 
 # Check jobs on the queue
-with open('.jobs_on_queue') as f:
+with open('.jobs_on_queue', 'r+') as f:
     lines = f.readlines()
     new_lines = []
     for line in lines:
@@ -144,4 +144,5 @@ with open('.jobs_on_queue') as f:
             send_message('Done!', chat_id)
         else:
             new_lines.append(line)
+    f.truncate(0)
     f.writelines(new_lines)
