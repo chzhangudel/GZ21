@@ -8,7 +8,7 @@ Created on Sat Oct  3 03:01:49 2020
 
 import requests
 
-with open('~/.bot_token') as f:
+with open('/home/ag7531/.bot_token') as f:
     token = f.readline().strip()
 
 def send_message(text: str, chat_id: str):

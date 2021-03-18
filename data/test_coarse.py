@@ -12,7 +12,7 @@ from xarray import DataArray
 from xarray import Dataset
 import numpy as np
 from numpy import ma
-from coarse import spatial_filter_dataset, spatial_filter, eddy_forcing
+from .coarse import spatial_filter_dataset, spatial_filter, eddy_forcing
 import matplotlib.pyplot as plt
 
 class TestEddyForcing(unittest.TestCase):
@@ -40,7 +40,8 @@ class TestEddyForcing(unittest.TestCase):
                        dims=('time', 'xu_ocean', 'yu_ocean'),
                        coords={'time': times, 'xu_ocean': xs, 'yu_ocean': ys})))
         filtered_data = spatial_filter_dataset(data, grid_info, (5, 5))
-        self.assertTrue(np.all(data['a'].values == filtered_data['a'].values))
+        self.assertTrue(np.all(data['a'].values == filtered_data['a'].values
+                               + 1))
 
     # def test_spatial_filter_dataset(self):
     #     a1 = DataArray(data = np.zeros((10, 4, 4)),
@@ -131,7 +132,3 @@ class TestEddyForcing(unittest.TestCase):
     #     ds = Dataset({'usurf' : a1, 'vsurf' : a2})
     #     adv = advections(ds)
     #     self.assertTrue((adv == 0).all().to_array().all().item())
-        
-
-if __name__ == '__main__':
-    unittest.main()
