@@ -132,6 +132,9 @@ for update in updates:
             else:
                 send_message('You are not registered as a user yet.', chat_id)
                 send_message('Please reply with the password', chat_id)
+                print('debug0')
+                print(message)
+                print(chat_id)
 
 # Check jobs on the queue
 with open('.jobs_on_queue', 'r+') as f:
