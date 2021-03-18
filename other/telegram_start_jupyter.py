@@ -17,7 +17,7 @@ import time
 from os.path import join
 import hashlib
 
-with open('.bot_token') as f:
+with open('/home/ag7531/.bot_token') as f:
     token = f.readline().strip()
 
 def get_updates():
