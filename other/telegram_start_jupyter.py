@@ -18,7 +18,7 @@ from os.path import join
 import hashlib
 
 with open('.bot_token') as f:
-    token = f.readline()
+    token = f.readline().strip()
 
 def get_updates():
     r = requests.get('https://api.telegram.org/bot' + token + '/getupdates')
