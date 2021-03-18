@@ -35,7 +35,7 @@ def start_jupyter():
 
 def get_output_file(job_id: int, chat_id: str, verbose: str = True):
     file_name = ''.join(('slurm-', str(job_id), '.out'))
-    file_path = join('/home/ag7531', file_name)
+    file_path = join('/home/ag7531/myjupyter', file_name)
     n = 0
     while True:
         n += 1
