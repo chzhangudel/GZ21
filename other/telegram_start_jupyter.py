@@ -27,9 +27,9 @@ def get_updates():
 
 
 def start_jupyter():
-    cmd_text = 'cd ~/myjupyter/'
-    cmd_text += ' & /opt/slurm/bin/sbatch ~/myjupyter/run-jupyter.sbatch'
-    r = subprocess.run(cmd_text, shell=True, capture_output=True)
+    cmd_text = ' & /opt/slurm/bin/sbatch myjupyter/run-jupyter.sbatch'
+    r = subprocess.run(cmd_text, shell=True, capture_output=True,
+                       cwd='/home/ag7531/myjupyter/')
     return r
 
 
