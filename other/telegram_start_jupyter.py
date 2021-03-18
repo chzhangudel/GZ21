@@ -107,7 +107,7 @@ for update in updates:
                 s = r.stdout.decode()
                 send_message(s, chat_id)
                 job_id = s.split()[-1]
-                logging.log(f'job id: {job_id}.')
+                logging.log(logging.DEBUG, f'job id: {job_id}.')
                 exit_code, output_file = get_output_file(int(job_id),
                                                          chat_id)
                 if exit_code == 0:
