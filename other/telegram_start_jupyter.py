@@ -52,7 +52,7 @@ def get_output_file(job_id: int, chat_id: str, verbose: str = True):
                     send_message('Found the file!', chat_id)
                 lines = f.readlines()
                 for line in lines:
-                    if '127.0.0.1' in line:
+                    if 'Serving notebooks from' in line:
                         return (0, lines)
         except FileNotFoundError:
             pass
