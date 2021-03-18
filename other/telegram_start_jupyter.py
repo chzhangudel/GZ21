@@ -16,6 +16,7 @@ import subprocess
 import time
 from os.path import join
 import hashlib
+import logging
 
 with open('/home/ag7531/.bot_token') as f:
     token = f.readline().strip()
@@ -106,6 +107,7 @@ for update in updates:
                 s = r.stdout.decode()
                 send_message(s, chat_id)
                 job_id = s.split()[-1]
+                logging.log(f'job id: {job_id}.')
                 exit_code, output_file = get_output_file(int(job_id),
                                                          chat_id)
                 if exit_code == 0:
@@ -126,18 +128,15 @@ for update in updates:
                 register_new_user(user_id)
                 send_message('Thanks, you are now registered.', chat_id)
                 send_message('To start a new session, please type "start '
-                             'jupyter"')
+                             'jupyter"', chat_id)
                 send_message('Note that the server may take a minute or two '
-                             'to reply.')
+                             'to reply.', chat_id)
             else:
                 send_message('You are not registered as a user yet.', chat_id)
                 send_message('Please reply with the password', chat_id)
-                print('debug0')
-                print(message)
-                print(chat_id)
 
 # Check jobs on the queue
-with open('.jobs_on_queue', 'r+') as f:
+with open('.jobs_on_queue', 'r') as f:
     lines = f.readlines()
     new_lines = []
     for line in lines:
@@ -150,5 +149,5 @@ with open('.jobs_on_queue', 'r+') as f:
             send_message('Done!', chat_id)
         else:
             new_lines.append(line)
-    f.truncate(0)
+with open('.jobs_on_queue', 'w') as f:
     f.writelines(new_lines)
