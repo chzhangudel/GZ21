@@ -226,6 +226,9 @@ class MixedModel:
     def __getattr__(self, attr_name):
         return getattr(self.net, attr_name)
 
+    def __setattr__(self, key, value):
+        setattr(self.net, key, value)
+
 
 if __name__ == '__main__':
     import numpy as np
