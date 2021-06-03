@@ -153,11 +153,12 @@ class Divergence2d(Module):
                             padding=2)
         output2 = output21 + output22
         res =  torch.stack((output1, output2), dim=1)
-        res = res[:,:, 0, :, :]
+        res = res[:, :, 0, :, :]
         return res
 
 
 class FullyCNN(DetectOutputSizeMixin, Sequential):
+
     def __init__(self, n_in_channels: int = 2, n_out_channels: int = 4,
                  padding=None, batch_norm=False):
         if padding is None:
@@ -198,7 +199,6 @@ class FullyCNN(DetectOutputSizeMixin, Sequential):
 
     def forward(self, x):
         x = super().forward(x)
-        # Temporary fix for the student loss
         return self.final_transformation(x)
 
     def _make_subblock(self, conv):
@@ -238,7 +238,8 @@ class MixedModel(Module):
     def __setattr__(self, key, value):
         if key == 'net' or key == 'n_in_channels':
             self.__dict__[key] = value
-        setattr(self.net, key, value)
+        else:
+            setattr(self.net, key, value)
 
     def __repr__(self):
         return self.net.__repr__()
