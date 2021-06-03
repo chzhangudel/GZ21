@@ -171,6 +171,8 @@ for xr_dataset in xr_datasets:
     print(submodel_transform)
     xr_dataset = submodel_transform.fit_transform(xr_dataset)
     with ProgressBar(), TaskInfo('Computing dataset'):
+        # Below line only for speeding up debugging
+        xr_dataset = xr_dataset.isel(time=slice(0, 25))
         xr_dataset = xr_dataset.compute()
     print(xr_dataset)
     dataset = RawDataFromXrDataset(xr_dataset)
