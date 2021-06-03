@@ -38,12 +38,9 @@ class Transform(ABC):
     def __call__(self, x: xr.Dataset):
         return self.apply(x)
 
-    def fit(self, x):
-        """Fits to the passed data. By default does not do anything."""
-        pass
-
     def fit_transform(self, x: xr.Dataset):
-        self.fit(x)
+        if hasattr(self, 'fit'):
+            self.fit(x)
         return self.transform(x)
 
     def inv_transform(self, x: xr.DataArray):
