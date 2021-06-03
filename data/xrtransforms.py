@@ -38,6 +38,10 @@ class Transform(ABC):
     def __call__(self, x: xr.Dataset):
         return self.apply(x)
 
+    def fit(self, x):
+        """Fits to the passed data. By default does not do anything."""
+        pass
+
     def fit_transform(self, x: xr.Dataset):
         self.fit(x)
         return self.transform(x)
@@ -236,27 +240,6 @@ class SeasonalStdizer(Transform):
         result = result + self.means[var_name].sel(month=months)
         del result['month']
         return result.values
-
-    # TODO see if we can use map_blocks to speed things up
-    # def transform(self, data):
-    #     sub_datasets = []
-    #     nb_samples = len(data.time)
-    #     for start in range(0, nb_samples, 8):
-    #         sub_data = data.isel(time=slice(start, min(start+8, nb_samples)))
-    #         sub_coords = sub_data.coords
-    #         new_xr_arrays = {}
-    #         for k, val in sub_data.items():
-    #             new_shape = val.shape
-    #             dims = val.dims
-    #             transformed = self.get_transformed(val, k)
-    #             dask_array = da.from_delayed(transformed, shape=new_shape,
-    #                                          dtype=np.float64)
-    #             new_xr_array = xr.DataArray(data=dask_array, coords=sub_coords,
-    #                                         dims=dims)
-    #             new_xr_arrays[k] = new_xr_array
-    #         new_ds = xr.Dataset(new_xr_arrays)
-    #         sub_datasets.append(new_ds)
-    #     return xr.concat(sub_datasets, dim='time')
 
     def transform(self, data):
         template = data.copy()
