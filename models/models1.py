@@ -228,8 +228,8 @@ class MixedModel(Module):
     def crop_like(self, x, y):
         shape_x = x.shape
         shape_y = y.shape
-        m = (shape_y[-2] - shape_x[-2]) // 2
-        n = (shape_y[-1] - shape_x[-1]) // 2
+        m = (shape_x[-2] - shape_y[-2]) // 2
+        n = (shape_x[-1] - shape_y[-1]) // 2
         return x[..., m: shape_x[-2] - m, n: shape_x[-1] - n]
 
     def __getattr__(self, attr_name):
@@ -239,6 +239,9 @@ class MixedModel(Module):
         if key == 'net' or key == 'n_in_channels':
             self.__dict__[key] = value
         setattr(self.net, key, value)
+
+    def __repr__(self):
+        return self.net.__repr__()
 
 
 if __name__ == '__main__':
