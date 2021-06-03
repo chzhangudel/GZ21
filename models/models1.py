@@ -208,7 +208,7 @@ class FullyCNN(DetectOutputSizeMixin, Sequential):
         return subbloc
 
 
-class MixedModel:
+class MixedModel(Module):
 
     net_cls = FullyCNN
 
