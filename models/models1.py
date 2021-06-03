@@ -223,6 +223,9 @@ class MixedModel:
         out[:, 1, ...] = torch.exp(out[:, 1, ...]) * equations[:, 1, ...]
         return out
 
+    def __getattr__(self, attr_name):
+        return getattr(self.net, attr_name)
+
 
 if __name__ == '__main__':
     import numpy as np
