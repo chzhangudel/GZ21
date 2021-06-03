@@ -26,6 +26,6 @@ transform1 = ChainedTransform((velocity_scaler, forcing_scaler,
 transform2 = ChainedTransform((velocity_scaler, forcing_scaler,
                                monthly_stdizer_means_stds))
 
-transform3 = ChainedTransform(((velocity_scaler, forcing_scaler)))
+transform3 = ChainedTransform((velocity_scaler, forcing_scaler))
 
-transform4 = ChainedTransform((transform3, BZFormulaTransform))
+transform4 = ChainedTransform((transform3, BZFormulaTransform()))

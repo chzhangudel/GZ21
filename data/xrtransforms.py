@@ -352,6 +352,9 @@ class FormulaTransform(Transform):
         return x.update(dict(s_x_formula=s_x_formula,
                              s_y_formula=s_y_formula))
 
+    def __repr__(self):
+        return 'FormulaTranform()'
+
 
 class BZFormulaTransform(FormulaTransform):
     def __init__(self):
