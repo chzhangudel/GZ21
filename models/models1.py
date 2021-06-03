@@ -214,20 +214,29 @@ class MixedModel:
 
     def __init__(self, *args, **kwargs):
         self.net = self.net_cls(*args, **kwargs)
+        self.n_in_channels = self.net.n_in_channels + self.n_target_channels
 
     def forward(self, x):
         uv = x[:, :2, ...]
         equations = x[:, 2:, ...]
         out = self.net.forward(uv)
+        equations = self.crop_like(equations, out)
         out[:, 0, ...] = torch.exp(out[:, 0, ...]) * equations[:, 0, ...]
         out[:, 1, ...] = torch.exp(out[:, 1, ...]) * equations[:, 1, ...]
         return out
+
+    def crop_like(self, x, y):
+        shape_x = x.shape
+        shape_y = y.shape
+        m = (shape_y[-2] - shape_x[-2]) // 2
+        n = (shape_y[-1] - shape_x[-1]) // 2
+        return x[..., m: shape_x[-2] - m, n: shape_x[-1] - n]
 
     def __getattr__(self, attr_name):
         return getattr(self.net, attr_name)
 
     def __setattr__(self, key, value):
-        if key == 'net':
+        if key == 'net' or key == 'n_in_channels':
             self.__dict__[key] = value
         setattr(self.net, key, value)
 
