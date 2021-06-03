@@ -54,7 +54,7 @@ def bz(velocity: np.ndarray):
     """
     zeta = velocity['vsurf'].diff(dim='xu_ocean') - velocity['usurf'].diff(
         dim='yu_ocean')
-    d = velocity['usurf'].diff(dim='yu_ocean') + velocity['v'].diff(
+    d = velocity['usurf'].diff(dim='yu_ocean') + velocity['vsurf'].diff(
         dim='xu_ocean')
     d_tilda = velocity['usurf'].diff(dim='xu_ocean') - velocity['vsurf'].diff(
         dim='yu_ocean')
