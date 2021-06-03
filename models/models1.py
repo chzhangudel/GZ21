@@ -227,6 +227,8 @@ class MixedModel:
         return getattr(self.net, attr_name)
 
     def __setattr__(self, key, value):
+        if key == 'net':
+            self.__dict__[key] = value
         setattr(self.net, key, value)
 
 
