@@ -13,6 +13,7 @@ from dask import delayed
 import dask.array as da
 import numpy as np
 from typing import List
+from regression.functions import bz
 
 
 class Transform(ABC):
@@ -337,3 +338,21 @@ class CropToMultipleOf(CropToNewShape):
 
     def __repr__(self):
         return f'CropToMultipleOf({self.multiples})'
+
+
+class FormulaTransform(Transform):
+    """Adds an extra dimension to the input corresponding to a closed-form
+    equation of the surface velocity field"""
+
+    def __init__(self, equation):
+        self.equation = equation
+
+    def transform(self, x):
+        s_x_formula, s_y_formula = self.equation(x)
+        return x.update(dict(s_x_formula=s_x_formula,
+                             s_y_formula=s_y_formula))
+
+
+class BZFormulaTransform(FormulaTransform):
+    def __init__(self):
+        super().__init__(bz)

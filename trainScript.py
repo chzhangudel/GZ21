@@ -183,6 +183,9 @@ for xr_dataset in xr_datasets:
     if submodel == 'transform2':
         dataset.add_output('S_x_d')
         dataset.add_output('S_y_d')
+    if submodel == 'transform4':
+        dataset.add_input('s_x_formula')
+        dataset.add_input('s_y_formula')
     train_index = int(train_split * len(dataset))
     test_index = int(test_split * len(dataset))
     features_transform = ComposeTransforms()

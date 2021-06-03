@@ -9,18 +9,18 @@
 - !!python/tuple
   - training
   - lat_min: -40.
-    lat_max: -25.
+    lat_max: -15.
     lon_min: -180.
-    lon_max: -162.
+    lon_max: -152.
 - !!python/tuple
   - training
-  - lat_min: -20.
+  - lat_min: -30.
     lat_max: -5.
-    lon_min: -110.
+    lon_min: -130.
     lon_max: -92.
 - !!python/tuple
   - training
   - lat_min: -0.
-    lat_max: 15.
+    lat_max: 25.
     lon_min: -48
-    lon_max: -30
+    lon_max: -20

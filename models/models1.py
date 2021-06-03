@@ -362,7 +362,6 @@ class FullyCNN(DetectOutputSizeMixin, Sequential):
         conv8 = torch.nn.Conv2d(32, n_out_channels, 3, padding=padding_3)
         Sequential.__init__(self, *block1, *block2, *block3, *block4, *block5,
                             *block6, *block7, conv8)
-        
 
     @property
     def final_transformation(self):
@@ -382,6 +381,19 @@ class FullyCNN(DetectOutputSizeMixin, Sequential):
         if self.batch_norm:
             subbloc.append(nn.BatchNorm2d(conv.out_channels))
         return subbloc
+
+
+class MixedModel(FullyCNN):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def forward(self, x):
+        uv = x[:, :2, ...]
+        equation = x[:, 2:, ...]
+        out = super().forward(uv)
+        out[:, 0, ...] = torch.exp(out[:, 0, ...]) * equation[:, 0, ...]
+        out[:, 1, ...] = torch.exp(out[:, 1, ...]) * equation[:, 1, ...]
+        return out
 
 
 # class FullyCNN(MLFlowNN, DetectOutputSizeMixin):
