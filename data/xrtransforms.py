@@ -62,7 +62,7 @@ class Transform(ABC):
         raw_inv_transform = cls.inv_transform
 
         def new_transform(self, x):
-            if not self.fitted and self.requires_fit:
+            if self.requires_fit and not self.fitted:
                 raise RuntimeError('The transform needs to be fitted first.')
             new_ds = raw_transform(self, x)
             new_ds.attrs.update(x.attrs)
@@ -325,6 +325,7 @@ class FormulaTransform(Transform):
     equation of the surface velocity field"""
 
     def __init__(self, equation):
+        super().__init__()
         self.equation = equation
 
     def transform(self, x):
