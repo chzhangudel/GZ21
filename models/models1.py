@@ -215,6 +215,8 @@ class MixedModel(Module):
     def __init__(self, *args, **kwargs):
         if 'n_in_channels' in kwargs:
             kwargs['n_in_channels'] -= 2
+        if len(args) > 0:
+            args[0] -= 2
         self.net = self.net_cls(*args, **kwargs)
         self.n_in_channels = self.net.n_in_channels + 2
 
