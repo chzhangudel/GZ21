@@ -208,16 +208,19 @@ class FullyCNN(DetectOutputSizeMixin, Sequential):
         return subbloc
 
 
-class MixedModel(FullyCNN):
+class MixedModel:
+
+    net_cls = FullyCNN
+
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        self.net = self.net_cls(*args, **kwargs)
 
     def forward(self, x):
         uv = x[:, :2, ...]
-        equation = x[:, 2:, ...]
-        out = super().forward(uv)
-        out[:, 0, ...] = torch.exp(out[:, 0, ...]) * equation[:, 0, ...]
-        out[:, 1, ...] = torch.exp(out[:, 1, ...]) * equation[:, 1, ...]
+        equations = x[:, 2:, ...]
+        out = self.net.forward(uv)
+        out[:, 0, ...] = torch.exp(out[:, 0, ...]) * equations[:, 0, ...]
+        out[:, 1, ...] = torch.exp(out[:, 1, ...]) * equations[:, 1, ...]
         return out
 
 
