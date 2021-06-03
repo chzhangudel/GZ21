@@ -214,7 +214,7 @@ class MixedModel:
 
     def __init__(self, *args, **kwargs):
         self.net = self.net_cls(*args, **kwargs)
-        self.n_in_channels = self.net.n_in_channels + self.n_target_channels
+        self.n_in_channels = self.net.n_in_channels + 2
 
     def forward(self, x):
         uv = x[:, :2, ...]
