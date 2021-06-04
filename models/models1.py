@@ -227,8 +227,8 @@ class MixedModel(Module):
         equations = x[:, 2:, ...]
         out = self.net.forward(uv)
         equations = self.crop_like(equations, out)
-        out[:, 0, ...] = torch.exp(out[:, 0, ...]) * equations[:, 0, ...]
-        out[:, 1, ...] = torch.exp(out[:, 1, ...]) * equations[:, 1, ...]
+        out[:, 0, ...] = (out[:, 0, ...]) * equations[:, 0, ...]
+        out[:, 1, ...] = (out[:, 1, ...]) * equations[:, 1, ...]
         return out
 
     def crop_like(self, x, y):
