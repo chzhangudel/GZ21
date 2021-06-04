@@ -1,4 +1,7 @@
 import numpy as np
+from data.pangeo_catalog import get_grid
+
+grid = get_grid()
 
 # This defines standard functions used for sparse regression
 
@@ -52,16 +55,16 @@ def bz(velocity: np.ndarray):
     Return the BZ parameterization with the multiplicative coefficient set to
     one.
     """
-    zeta = velocity['vsurf'].diff(dim='xu_ocean') - velocity['usurf'].diff(
-        dim='yu_ocean')
-    d = velocity['usurf'].diff(dim='yu_ocean') + velocity['vsurf'].diff(
-        dim='xu_ocean')
-    d_tilda = velocity['usurf'].diff(dim='xu_ocean') - velocity['vsurf'].diff(
-        dim='yu_ocean')
+    zeta = (velocity['vsurf'].diff(dim='xu_ocean') / grid['dxu']
+           - velocity['usurf'].diff(dim='yu_ocean') / grid['dyu'])
+    d = (velocity['usurf'].diff(dim='yu_ocean') / grid['dyu']
+        + velocity['vsurf'].diff(dim='xu_ocean') / grid['dxu'])
+    d_tilda = (velocity['usurf'].diff(dim='xu_ocean') / grid['dxu']
+              - velocity['vsurf'].diff(dim='yu_ocean') / grid['dyu'])
     zeta_sq = zeta**2
     s_x = ((zeta_sq - zeta * d).diff(dim='xu_ocean') +
            (zeta * d_tilda).diff(dim='yu_ocean'))
     s_y = (zeta * d_tilda).diff(dim='xu_ocean') + \
           (zeta_sq + zeta * d).diff(dim='yu_ocean')
-    return s_x, s_y
+    return s_x * 1e7, s_y * 1e7
 

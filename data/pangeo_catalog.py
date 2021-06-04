@@ -13,10 +13,12 @@ import numpy as np
 from intake.config import conf
 conf['persist_path'] = '/scratch/ag7531/'
 CACHE_FOLDER = '/scratch/ag7531/cm26_cache'
+CATALOG_URL = 'https://raw.githubusercontent.com/pangeo-data/pangeo-datastore\
+/master/intake-catalogs/master.yaml'
 
 
-def get_patch(catalog_url, ntimes: int = None, bounds: list = None,
-              cO2_level=0, *selected_vars):
+def get_patch(catalog_url: str = CATALOG_URL, ntimes: int = None,
+              bounds: list = None, cO2_level=0, *selected_vars):
     """
     Return a tuple with a patch of uv velocities along with the grid details.
 
@@ -72,6 +74,13 @@ def get_patch(catalog_url, ntimes: int = None, bounds: list = None,
     else:
         return uv_data[list(selected_vars)], grid_data
 
+def get_grid():
+    catalog = intake.open_catalog(CATALOG_URL)
+    s_grid = catalog.ocean.GFDL_CM2_6.GFDL_CM2_6_grid
+    grid_data = s_grid.to_dask()
+    # Following line is necessary to transform non-primary coords into vars
+    grid_data = grid_data.reset_coords()[['dxu', 'dyu', 'wet']]
+    return grid_data
 
 def get_whole_data(url, c02_level):
     data, grid = get_patch(url, None, None, c02_level, 'usurf', 'vsurf')
