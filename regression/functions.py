@@ -54,6 +54,9 @@ def bz(velocity: np.ndarray):
     """
     Return the BZ parameterization
     """
+    # TODO not efficient to do this every call
+    grid = grid.interp(dict(xu_ocean=velocity.xu_ocean,
+                            yu_ocean=velocity.yu_ocean)) * 4
     velocity = velocity / 10
     zeta = (velocity['vsurf'].diff(dim='xu_ocean') / grid['dxu']
            - velocity['usurf'].diff(dim='yu_ocean') / grid['dyu'])
@@ -68,6 +71,5 @@ def bz(velocity: np.ndarray):
           + (zeta_sq + zeta * d).diff(dim='yu_ocean') / grid['dyu'])
     k_bt = -4.87 * 1e8
     s_x, s_y = s_x * 1e7 * k_bt, s_y * 1e7 * k_bt
-    print(s_x.std())
     return s_x, s_y
 
