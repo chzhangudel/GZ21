@@ -62,9 +62,9 @@ def bz(velocity: np.ndarray):
     d_tilda = (velocity['usurf'].diff(dim='xu_ocean') / grid['dxu']
               - velocity['vsurf'].diff(dim='yu_ocean') / grid['dyu'])
     zeta_sq = zeta**2
-    s_x = ((zeta_sq - zeta * d).diff(dim='xu_ocean') +
-           (zeta * d_tilda).diff(dim='yu_ocean'))
-    s_y = (zeta * d_tilda).diff(dim='xu_ocean') + \
-          (zeta_sq + zeta * d).diff(dim='yu_ocean')
+    s_x = ((zeta_sq - zeta * d).diff(dim='xu_ocean') / grid['dxu']
+            + (zeta * d_tilda).diff(dim='yu_ocean') / grid['dyu'])
+    s_y = ((zeta * d_tilda).diff(dim='xu_ocean') / grid['dxu']
+          + (zeta_sq + zeta * d).diff(dim='yu_ocean') / grid['dyu'])
     return s_x * 1e7, s_y * 1e7
 
