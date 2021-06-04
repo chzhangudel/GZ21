@@ -1,7 +1,7 @@
 import numpy as np
 from data.pangeo_catalog import get_grid
 
-grid = get_grid()
+grid_cm26 = get_grid()
 
 # This defines standard functions used for sparse regression
 
@@ -55,7 +55,7 @@ def bz(velocity: np.ndarray):
     Return the BZ parameterization
     """
     # TODO not efficient to do this every call
-    grid = grid.interp(dict(xu_ocean=velocity.xu_ocean,
+    grid = grid_cm26.interp(dict(xu_ocean=velocity.xu_ocean,
                             yu_ocean=velocity.yu_ocean)) * 4
     velocity = velocity / 10
     zeta = (velocity['vsurf'].diff(dim='xu_ocean') / grid['dxu']
