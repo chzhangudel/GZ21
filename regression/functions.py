@@ -55,17 +55,17 @@ def bz(velocity: np.ndarray):
     Return the BZ parameterization
     """
     velocity = velocity / 10
-    zeta = (velocity['vsurf'].diff(dim='xu_ocean') / grid['dxu']
-           - velocity['usurf'].diff(dim='yu_ocean') / grid['dyu'])
-    d = (velocity['usurf'].diff(dim='yu_ocean') / grid['dyu']
-        + velocity['vsurf'].diff(dim='xu_ocean') / grid['dxu'])
-    d_tilda = (velocity['usurf'].diff(dim='xu_ocean') / grid['dxu']
-              - velocity['vsurf'].diff(dim='yu_ocean') / grid['dyu'])
+    zeta = (velocity['vsurf'].diff(dim='xu_ocean') / grid['dxt']
+           - velocity['usurf'].diff(dim='yu_ocean') / grid['dyt'])
+    d = (velocity['usurf'].diff(dim='yu_ocean') / grid['dyt']
+        + velocity['vsurf'].diff(dim='xu_ocean') / grid['dxt'])
+    d_tilda = (velocity['usurf'].diff(dim='xu_ocean') / grid['dxt']
+              - velocity['vsurf'].diff(dim='yu_ocean') / grid['dyt'])
     zeta_sq = zeta**2
-    s_x = ((zeta_sq - zeta * d).diff(dim='xu_ocean') / grid['dxu']
-            + (zeta * d_tilda).diff(dim='yu_ocean') / grid['dyu'])
-    s_y = ((zeta * d_tilda).diff(dim='xu_ocean') / grid['dxu']
-          + (zeta_sq + zeta * d).diff(dim='yu_ocean') / grid['dyu'])
+    s_x = ((zeta_sq - zeta * d).diff(dim='xu_ocean') / grid['dxt']
+            + (zeta * d_tilda).diff(dim='yu_ocean') / grid['dyt'])
+    s_y = ((zeta * d_tilda).diff(dim='xu_ocean') / grid['dxt']
+          + (zeta_sq + zeta * d).diff(dim='yu_ocean') / grid['dyt'])
     k_bt = -4.87 * 1e8
     s_x, s_y = s_x * 1e7 * k_bt, s_y * 1e7 * k_bt
     print(s_x.std())
