@@ -79,7 +79,7 @@ def get_grid():
     s_grid = catalog.ocean.GFDL_CM2_6.GFDL_CM2_6_grid
     grid_data = s_grid.to_dask()
     # Following line is necessary to transform non-primary coords into vars
-    grid_data = grid_data.reset_coords()[['dxu', 'dyu', 'wet']]
+    grid_data = grid_data.reset_coords()[['dxt', 'dyt', 'wet']]
     return grid_data
 
 def get_whole_data(url, c02_level):
