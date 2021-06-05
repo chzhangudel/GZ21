@@ -35,7 +35,7 @@ def zeta(velocity: np.ndarray):
     velocity = velocity / 10
     zeta = (velocity['vsurf'].diff(dim='xu_ocean') / grid['dxu']
             - velocity['usurf'].diff(dim='yu_ocean') / grid['dyu'])
-    return zeta
+    return zeta * 1e7
 
 
 def d(velocity: np.ndarray):
@@ -43,7 +43,7 @@ def d(velocity: np.ndarray):
                                  yu_ocean=velocity.yu_ocean)) * 4
     d = (velocity['usurf'].diff(dim='yu_ocean') / grid['dyu']
          + velocity['vsurf'].diff(dim='xu_ocean') / grid['dxu'])
-    return d
+    return d * 1e7
 
 
 def d_tilda(velocity: np.ndarray):
@@ -51,4 +51,8 @@ def d_tilda(velocity: np.ndarray):
                                  yu_ocean=velocity.yu_ocean)) * 4
     d_tilda = (velocity['usurf'].diff(dim='xu_ocean') / grid['dxu']
                - velocity['vsurf'].diff(dim='yu_ocean') / grid['dyu'])
-    return d_tilda
+    return d_tilda * 1e7
+
+
+def laplacian(velocity: np.ndarray):
+    pass
