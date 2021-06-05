@@ -330,8 +330,10 @@ class FormulaTransform(Transform):
 
     def transform(self, x):
         s_x_formula, s_y_formula = self.equation(x)
-        return x.update(dict(s_x_formula=s_x_formula,
-                             s_y_formula=s_y_formula))
+        out = x.update(dict(s_x_formula=s_x_formula,
+                            s_y_formula=s_y_formula))
+        out = out.fillna(0.)
+        return out
 
     def __repr__(self):
         return 'FormulaTranform()'
