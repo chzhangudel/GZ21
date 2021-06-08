@@ -328,7 +328,10 @@ class QuantileLoss(_Loss):
                                      dim=1, keepdim=True) + 1
         i_quantiles_y = torch.argmax((target[:, 1:2, ...] >= quantiles_y) * 1.,
                                      dim=1, keepdim=True) + 1
-        i_quantiles_x = torch.minimum(i_quantiles_x, self.n_quantiles - 1)
+        i_quantiles_x = torch.minimum(i_quantiles_x,
+                                      torch.tensor(self.n_quantiles - 1))
+        i_quantiles_y = torch.minimum(i_quantiles_y,
+                                      torch.tensor(self.n_quantiles - 1))
         # lkh
         lkh_x = torch.log(input[:, :self.n_quantiles, ...])
         lkh_x = torch.gather(lkh_x, 1, i_quantiles_x)
