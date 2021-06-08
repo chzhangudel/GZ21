@@ -374,7 +374,7 @@ class QuantileLoss(_Loss):
             z = (x - location) / scale
         if direction == 'left':
             z = (location - x) / scale
-        return (-1-1/shape) * torch.log(1 + shape * x)
+        return (-1-1/shape) * torch.log(1 + shape * z)
 
     def predict(self, input):
         return torch.cat((input[:, self.n_quantiles // 2: self.n_quantiles //
