@@ -346,7 +346,7 @@ class QuantileLoss(_Loss):
                                    quantiles_y[:, :1, ...]), dim=1)
         higher_quantile = torch.cat((quantiles_x[:, -1:, ...],
                                     quantiles_y[:, -1:, ...]), dim=1)
-        pareto_right = self.generalized_pareto(target,
+        pareto_right = - self.generalized_pareto(target,
                                                input[:, 2 * self.n_quantiles:
                                                         2 * self.n_quantiles
                                                         + 2,
@@ -355,7 +355,7 @@ class QuantileLoss(_Loss):
                                                         2 * self.n_quantiles + 4,
                                                ...],
                                                higher_quantile)
-        pareto_left = self.generalized_pareto(target,
+        pareto_left = - self.generalized_pareto(target,
                                               input[:, 2 * self.n_quantiles + 4:
                                                        2 * self.n_quantiles + 6,
                                               ...],
@@ -389,19 +389,24 @@ class QuantileLoss(_Loss):
         return (-1-1/shape) * torch.log(1 + shape * z)
 
     def predict(self, input):
-        return torch.cat((input[:, self.n_quantiles // 2: self.n_quantiles //
-                                                          2 + 1, ...],
-                         input[:, self.n_quantiles + self.n_quantiles // 2:
+        quantiles_x = torch.cumsum(input[:, :self.n_quantiles, ...], dim=1)
+        quantiles_y = torch.cumsum(input[:, self.n_quantiles:
+                                            2 * self.n_quantiles, ...], dim=1)
+        return torch.cat((quantiles_x[:,
+                          self.n_quantiles // 2: self.n_quantiles // 2 + 1,
+                          ...],
+                         quantiles_y[:, self.n_quantiles // 2:
                          self.n_quantiles + self.n_quantiles // 2 + 1,
                          ...]), dim=1)
 
 
 if __name__ == '__main__':
-    input = np.random.rand(1, 7 * 2, 3, 3) *0.001 + 20
+    input = np.random.rand(1, 7 * 2, 3, 3) * 0.001
     input = torch.tensor(input)
     input.requires_grad = True
     target = (np.random.rand(1, 2, 3, 3)) * 5.
     target = torch.tensor(target)
     ql = QuantileLoss(2, 3)
     z = ql.forward(input, target)
-    print(z[0])
+    print(z)
+    print(ql.predict(input))
