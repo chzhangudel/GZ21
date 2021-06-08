@@ -364,9 +364,14 @@ class QuantileLoss(_Loss):
                                               ...],
                                               lower_quantile,
                                               direction='left')
-        lkh[target < lower_quantile] = - pareto_left[target < lower_quantile]
-        lkh[target > higher_quantile] = - pareto_right[target > higher_quantile]
-        return lkh.mean()
+        #lkh[target < lower_quantile] = - pareto_left[target < lower_quantile]
+        #lkh[target > higher_quantile] = - pareto_right[target >
+        # higher_quantile]
+        lkh = torch.cat((lkh, pareto_left, pareto_right), dim=1)
+        sel = (target < lower_quantile) * 2 + (target > higher_quantile) * 4
+        sel[:, 1] += 1
+        lkh = torch.gather(lkh, 1, sel)
+        return lkh.mean(), target < lower_quantile, target > higher_quantile
 
 
     @property
@@ -376,10 +381,11 @@ class QuantileLoss(_Loss):
 
     @staticmethod
     def generalized_pareto(x, shape, scale, location, direction = 'right'):
+        shape = shape
         if direction == 'right':
-            z = (x - location) / scale
+            z = torch.abs((x - location)) / scale
         if direction == 'left':
-            z = (location - x) / scale
+            z = torch.abs((location - x)) / scale
         return (-1-1/shape) * torch.log(1 + shape * z)
 
     def predict(self, input):
@@ -388,3 +394,14 @@ class QuantileLoss(_Loss):
                          input[:, self.n_quantiles + self.n_quantiles // 2:
                          self.n_quantiles + self.n_quantiles // 2 + 1,
                          ...]), dim=1)
+
+
+if __name__ == '__main__':
+    input = np.random.rand(1, 7 * 2, 3, 3) *0.001 + 20
+    input = torch.tensor(input)
+    input.requires_grad = True
+    target = (np.random.rand(1, 2, 3, 3)) * 5.
+    target = torch.tensor(target)
+    ql = QuantileLoss(2, 3)
+    z = ql.forward(input, target)
+    print(z[0])
