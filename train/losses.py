@@ -328,12 +328,6 @@ class QuantileLoss(_Loss):
                                      dim=1, keepdim=True)
         i_quantiles_y = torch.argmax((target[:, 1:2, ...] <= quantiles_y) * 1.,
                                      dim=1, keepdim=True)
-        i_quantiles_x = torch.minimum(i_quantiles_x,
-                                      torch.tensor(self.n_quantiles - 1,
-                                                   device=input.device))
-        i_quantiles_y = torch.minimum(i_quantiles_y,
-                                      torch.tensor(self.n_quantiles - 1,
-                                                   device=input.device))
         # lkh
         lkh_x = torch.log(input[:, :self.n_quantiles, ...])
         lkh_x = torch.gather(lkh_x, 1, i_quantiles_x)
@@ -381,7 +375,6 @@ class QuantileLoss(_Loss):
 
     @staticmethod
     def generalized_pareto(x, shape, scale, location, direction = 'right'):
-        shape = shape
         if direction == 'right':
             z = torch.abs((x - location)) / scale
         if direction == 'left':
@@ -400,12 +393,12 @@ class QuantileLoss(_Loss):
 
 
 if __name__ == '__main__':
-    input = np.random.rand(1, 7 * 2, 3, 3) * 0.001
+    input = np.random.rand(1, 18, 3, 3) * 0.001
     input = torch.tensor(input)
     input.requires_grad = True
     target = (np.random.rand(1, 2, 3, 3)) * 5.
     target = torch.tensor(target)
-    ql = QuantileLoss(2, 3)
+    ql = QuantileLoss(2, 5)
     z = ql.forward(input, target)
     print(z)
     print(ql.predict(input).shape)
