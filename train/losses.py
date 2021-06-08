@@ -319,8 +319,8 @@ class QuantileLoss(_Loss):
 
     def forward(self, input, target):
         quantiles_x = torch.cumsum(input[:, :self.n_quantiles, ...], dim=1)
-        quantiles_y = torch.cumsum(input[:, self.n_quantiles: 2 *
-                                                              self.n_quantiles],
+        quantiles_y = torch.cumsum(input[:,
+                                   self.n_quantiles: 2 *self.n_quantiles, ...],
                                    dim=1)
         # The below tensor indicates which quantiles the observed data
         # belongs to
@@ -374,7 +374,7 @@ class QuantileLoss(_Loss):
             z = (x - location) / scale
         if direction == 'left':
             z = (location - x) / scale
-        return (1 + shape * x)**(-1 - 1/shape)
+        return (-1-1/shape) * torch.log(1 + shape * x)
 
     def predict(self, input):
         return torch.cat((input[:, self.n_quantiles // 2: self.n_quantiles //
