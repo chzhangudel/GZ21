@@ -371,7 +371,7 @@ class QuantileLoss(_Loss):
         sel = (target < lower_quantile) * 2 + (target > higher_quantile) * 4
         sel[:, 1] += 1
         lkh = torch.gather(lkh, 1, sel)
-        return lkh.mean(), target < lower_quantile, target > higher_quantile
+        return lkh.mean()
 
 
     @property
