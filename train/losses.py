@@ -308,7 +308,7 @@ class PentamodalGaussianLoss(MultimodalLoss):
 
 class QuantileLoss(_Loss):
 
-    def __init__(self, n_target_channels: int = 2, n_quantiles: int = 3):
+    def __init__(self, n_target_channels: int = 2, n_quantiles: int = 5):
         super().__init__()
         self.n_quantiles = n_quantiles
         self.n_target_channels = n_target_channels
@@ -393,12 +393,12 @@ class QuantileLoss(_Loss):
 
 
 if __name__ == '__main__':
-    input = np.random.rand(1, 18, 3, 3) * 0.001
+    input = np.random.rand(1, 14, 3, 3) 
     input = torch.tensor(input)
     input.requires_grad = True
-    target = (np.random.rand(1, 2, 3, 3)) * 5.
+    target = np.random.randn(1, 2, 3, 3)
     target = torch.tensor(target)
-    ql = QuantileLoss(2, 5)
+    ql = QuantileLoss(2, 3)
     z = ql.forward(input, target)
     print(z)
-    print(ql.predict(input).shape)
+    print(ql.predict(input))
