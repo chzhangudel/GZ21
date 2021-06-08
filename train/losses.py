@@ -304,3 +304,81 @@ class PentamodalGaussianLoss(MultimodalLoss):
     def __init__(self, n_target_channels: int):
         super().__init__(5, n_target_channels,
                          base_loss_cls=HeteroskedasticGaussianLossV2)
+
+
+class QuantileLoss(_Loss):
+
+    def __init__(self, n_target_channels: int = 2, n_quantiles: int = 3):
+        super().__init__()
+        self.n_quantiles = n_quantiles
+        self.n_target_channels = n_target_channels
+
+    @property
+    def n_required_channels(self):
+        return (4 + self.n_quantiles) * self.n_target_channels
+
+    def forward(self, input, target):
+        quantiles_x = torch.cumsum(input[:, :self.n_quantiles, ...], dim=1)
+        quantiles_y = torch.cumsum(input[:, self.n_quantiles: 2 *
+                                                              self.n_quantiles],
+                                   dim=1)
+        # The below tensor indicates which quantiles the observed data
+        # belongs to
+        i_quantiles_x = torch.argmax((target[:, :1, ...] >= quantiles_x) * 1.,
+                                     dim=1, keepdim=True)
+        i_quantiles_y = torch.argmax((target[:, 1:2, ...] >= quantiles_y) * 1.,
+                                     dim=1, keepdim=True)
+        # lkh
+        lkh_x = torch.log(input[:, :self.n_quantiles, ...])
+        lkh_x = torch.gather(lkh_x, 1, i_quantiles_x)
+        lkh_y = torch.log(input[:, self.n_quantiles: 2 * self.n_quantiles, ...])
+        lkh_y = torch.gather(lkh_y, 1, i_quantiles_y)
+        lkh = torch.cat((lkh_x, lkh_y), dim=1)
+        # Treat the case i_quantile = 0 or i_quantile = self.n_quantiles - 1
+        # which are modelled via Generalized Pareto
+        lower_quantile = torch.cat((quantiles_x[:, :1, ...],
+                                   quantiles_y[:, :1, ...]), dim=1)
+        higher_quantile = torch.cat((quantiles_x[:, -1:, ...],
+                                    quantiles_y[:, -1:, ...]), dim=1)
+        pareto_right = self.generalized_pareto(target,
+                                               input[:, 2 * self.n_quantiles:
+                                                        2 * self.n_quantiles
+                                                        + 2,
+                                               ...],
+                                               input[:, 2 * self.n_quantiles + 2:
+                                                        2 * self.n_quantiles + 4,
+                                               ...],
+                                               higher_quantile)
+        pareto_left = self.generalized_pareto(target,
+                                              input[:, 2 * self.n_quantiles + 4:
+                                                       2 * self.n_quantiles + 6,
+                                              ...],
+                                              input[:, 2 * self.n_quantiles + 6:
+                                                       2 * self.n_quantiles + 8,
+                                              ...],
+                                              lower_quantile,
+                                              direction='left')
+        lkh[target < lower_quantile] = - pareto_left[target < lower_quantile]
+        lkh[target > higher_quantile] = - pareto_right[target > higher_quantile]
+        return lkh.mean()
+
+
+    @property
+    def precision_indices(self):
+        return list(range(1, self.n_quantiles)) + list(
+            range(self.n_quantiles + 1, self.n_required_channels))
+
+    @staticmethod
+    def generalized_pareto(x, shape, scale, location, direction = 'right'):
+        if direction == 'right':
+            z = (x - location) / scale
+        if direction == 'left':
+            z = (location - x) / scale
+        return (1 + shape * x)**(-1 - 1/shape)
+
+    def predict(self, input):
+        return torch.cat((input[:, self.n_quantiles // 2: self.n_quantiles //
+                                                          2 + 1, ...],
+                         input[:, self.n_quantiles + self.n_quantiles // 2:
+                         self.n_quantiles + self.n_quantiles // 2 + 1,
+                         ...]), dim=1)
