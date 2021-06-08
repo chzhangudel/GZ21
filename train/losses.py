@@ -324,10 +324,10 @@ class QuantileLoss(_Loss):
                                    dim=1)
         # The below tensor indicates which quantiles the observed data
         # belongs to
-        i_quantiles_x = torch.argmax((target[:, :1, ...] >= quantiles_x) * 1.,
-                                     dim=1, keepdim=True) + 1
-        i_quantiles_y = torch.argmax((target[:, 1:2, ...] >= quantiles_y) * 1.,
-                                     dim=1, keepdim=True) + 1
+        i_quantiles_x = torch.argmax((target[:, :1, ...] <= quantiles_x) * 1.,
+                                     dim=1, keepdim=True)
+        i_quantiles_y = torch.argmax((target[:, 1:2, ...] <= quantiles_y) * 1.,
+                                     dim=1, keepdim=True)
         i_quantiles_x = torch.minimum(i_quantiles_x,
                                       torch.tensor(self.n_quantiles - 1,
                                                    device=input.device))
@@ -396,8 +396,7 @@ class QuantileLoss(_Loss):
                           self.n_quantiles // 2: self.n_quantiles // 2 + 1,
                           ...],
                          quantiles_y[:, self.n_quantiles // 2:
-                         self.n_quantiles + self.n_quantiles // 2 + 1,
-                         ...]), dim=1)
+                                        self.n_quantiles // 2 + 1, ...]), dim=1)
 
 
 if __name__ == '__main__':
@@ -409,4 +408,4 @@ if __name__ == '__main__':
     ql = QuantileLoss(2, 3)
     z = ql.forward(input, target)
     print(z)
-    print(ql.predict(input))
+    print(ql.predict(input).shape)
