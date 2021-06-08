@@ -308,7 +308,7 @@ class PentamodalGaussianLoss(MultimodalLoss):
 
 class QuantileLoss(_Loss):
 
-    def __init__(self, n_target_channels: int = 2, n_quantiles: int = 5):
+    def __init__(self, n_target_channels: int = 2, n_quantiles: int = 3):
         super().__init__()
         self.n_quantiles = n_quantiles
         self.n_target_channels = n_target_channels
