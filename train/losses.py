@@ -417,7 +417,8 @@ class Tuckey_g_h_inverse(Function):
         node_values = Tuckey_g_h_inverse.tuckey_g_h(nodes, new_g, new_h)
         i_node = torch.argmax((z_tilda <= node_values) * 1., dim=-1,
                               keepdim=True)
-        z = torch.gather(node_values, -1, i_node)
+        nodes = nodes.flatten()
+        z = nodes[i_node]
         z = z.reshape(init_shape)
         ctx.save_for_backward(z, g, h)
         return z
@@ -492,7 +493,7 @@ if __name__ == '__main__':
     input[:, [0, 1, 4, 5]] -= 0.5
     input = torch.tensor(input)
     input.requires_grad = True
-    target = np.random.rand(1, 2, 3, 3) - 0.5
+    target = (np.random.rand(1, 2, 3, 3) - 0.5) * 20
     target = torch.tensor(target)
     tgh = TuckeyGandHloss()
     o = tgh(input, target)
