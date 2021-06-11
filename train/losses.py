@@ -408,7 +408,7 @@ class Tuckey_g_h_inverse(Function):
 
      @staticmethod
      def forward(ctx, z_tilda, g, h):
-         nodes = torch.linspace(-10, 10, 100)
+         nodes = torch.linspace(-10, 10, 100, device=z_tilda.device)
          nodes = nodes.reshape([1, ] * z_tilda.ndim + [100, ])
          new_g = g.unsqueeze(-1)
          new_h = h.unsqueeze(-1)
@@ -479,12 +479,11 @@ class TuckeyGandHloss(_Loss):
         return [2, 3, 6, 7]
 
     def predict(self, input):
-        epsilon, sigma, g, h = torch.split(input, self.n_target_channels, dim=1)
-        if h < 1:
-            return (epsilon + 1 / (g * torch.sqrt(1 - h)) *
-                    (torch.exp(g**2 / (2 * (1 - h))) - 1))
-        else:
-            return torch.tensor(np.nan)
+        epsilon, sigma, g, h = torch.split(input, self.n_target_channels, dim=1)\
+        out = (epsilon + 1 / (g * torch.sqrt(1 - h)) *
+               (torch.exp(g**2 / (2 * (1 - h))) - 1))
+        out[out.isnan()] = 0.
+        return out
 
 
 
@@ -496,6 +495,7 @@ if __name__ == '__main__':
     target = torch.tensor(target)
     tgh = TuckeyGandHloss()
     o = tgh(input, target)
+    print(tgh.predict(input))
 
 
 a = 0
