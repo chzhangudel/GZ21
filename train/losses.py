@@ -402,53 +402,51 @@ class QuantileLoss(_Loss):
 
 class Tuckey_g_h_inverse(Function):
 
-     @staticmethod
-     def tuckey_g_h(z, g, h):
-         return 1 / g * (torch.exp(g * z) - 1) * torch.exp(h * z ** 2 / 2)
+    @staticmethod
+    def tuckey_g_h(z, g, h):
+        return 1 / g * (torch.exp(g * z) - 1) * torch.exp(h * z ** 2 / 2)
 
-     @staticmethod
-     def forward(ctx, z_tilda, g, h):
-         nodes = torch.linspace(-10, 10, 100, device=z_tilda.device)
-         nodes = nodes.reshape([1, ] * z_tilda.ndim + [100, ])
-         new_g = g.unsqueeze(-1)
-         new_h = h.unsqueeze(-1)
-         init_shape = z_tilda.shape
-         z_tilda = z_tilda.unsqueeze(-1)
-         node_values = Tuckey_g_h_inverse.tuckey_g_h(nodes, new_g, new_h)
-         i_node = torch.argmax((z_tilda <= node_values) * 1., dim=-1,
-                               keepdim=True)
-         print(node_values.shape)
-         print(i_node.shape)
-         z = torch.gather(node_values, -1, i_node)
-         z = z.reshape(init_shape)
-         ctx.save_for_backward(z, g, h)
-         return z
+    @staticmethod
+    def forward(ctx, z_tilda, g, h):
+        nodes = torch.linspace(-10, 10, 100, device=z_tilda.device)
+        nodes = nodes.reshape([1, ] * z_tilda.ndim + [100, ])
+        new_g = g.unsqueeze(-1)
+        new_h = h.unsqueeze(-1)
+        init_shape = z_tilda.shape
+        z_tilda = z_tilda.unsqueeze(-1)
+        node_values = Tuckey_g_h_inverse.tuckey_g_h(nodes, new_g, new_h)
+        i_node = torch.argmax((z_tilda <= node_values) * 1., dim=-1,
+                              keepdim=True)
+        z = torch.gather(node_values, -1, i_node)
+        z = z.reshape(init_shape)
+        ctx.save_for_backward(z, g, h)
+        return z
 
-     @staticmethod
-     def backward(ctx, grad_output):
-         z, g, h = ctx.saved_tensors
-         if grad_output is None:
-             return
-         d_input = 1 / Tuckey_g_h_inverse.d_tau_d_z(z, g, h)
-         d_g = 1 / Tuckey_g_h_inverse.d_tau_d_g(z, g, h)
-         d_h = 1 / Tuckey_g_h_inverse.d_tau_d_h(z, g, h)
-         return d_input * grad_output, d_g * grad_output, d_h * grad_output
+    @staticmethod
+    def backward(ctx, grad_output):
+        z, g, h = ctx.saved_tensors
+        if grad_output is None:
+            return None
+        d_input = 1 / Tuckey_g_h_inverse.d_tau_d_z(z, g, h)
+        d_g = 1 / Tuckey_g_h_inverse.d_tau_d_g(z, g, h)
+        d_h = 1 / Tuckey_g_h_inverse.d_tau_d_h(z, g, h)
+        return d_input * grad_output, d_g * grad_output, d_h * grad_output
 
-     @staticmethod
-     def d_tau_d_g(z, g, h):
-         out =  - 1 / g * Tuckey_g_h_inverse.tuckey_g_h(z, g, h)
-         out = out + 1 / g * z * torch.exp(g * z + 1 / 2 * h * z ** 2)
-         return out
+    @staticmethod
+    def d_tau_d_g(z, g, h):
+        out =  - 1 / g * Tuckey_g_h_inverse.tuckey_g_h(z, g, h)
+        out = out + 1 / g * z * torch.exp(g * z + 1 / 2 * h * z ** 2)
+        return out
 
-     @staticmethod
-     def d_tau_d_h(z, g, h):
-         return 1 / 2 * z ** 2 * Tuckey_g_h_inverse.tuckey_g_h(z, g, h)
+    @staticmethod
+    def d_tau_d_h(z, g, h):
+        return 1 / 2 * z ** 2 * Tuckey_g_h_inverse.tuckey_g_h(z, g, h)
 
-     @staticmethod
-     def d_tau_d_z(z, g, h):
-         out = torch.exp(g * z) * torch.exp(h * z ** 2 / 2)
-         out = out + h * z * Tuckey_g_h_inverse.tuckey_g_h(z, g, h)
-         return out
+    @staticmethod
+    def d_tau_d_z(z, g, h):
+        out = torch.exp(g * z) * torch.exp(h * z ** 2 / 2)
+        out = out + h * z * Tuckey_g_h_inverse.tuckey_g_h(z, g, h)
+        return out
 
 
 class TuckeyGandHloss(_Loss):
@@ -472,7 +470,9 @@ class TuckeyGandHloss(_Loss):
         lkh = lkh + torch.log(z * Tuckey_g_h_inverse.tuckey_g_h(z, g, h))
         lkh = lkh + z ** 2 / 2
         lkh = lkh + torch.log(sigma)
-        return lkh.mean()
+        lkh = lkh.mean()
+        print('Debugging:', lkh.item())
+        return lkh
 
     @property
     def precision_indices(self):
@@ -488,14 +488,15 @@ class TuckeyGandHloss(_Loss):
 
 
 if __name__ == '__main__':
-    input = np.random.rand(1, 8, 3, 3) * 0.2
+    input = np.random.rand(1, 8, 3, 3)
+    input[:, [0, 1, 4, 5]] -= 0.5
     input = torch.tensor(input)
     input.requires_grad = True
-    target = np.random.rand(1, 2, 3, 3) * 2 - 0.5
+    target = np.random.rand(1, 2, 3, 3) - 0.5
     target = torch.tensor(target)
     tgh = TuckeyGandHloss()
     o = tgh(input, target)
-    print(tgh.predict(input))
+    print(o)
 
 
 a = 0
