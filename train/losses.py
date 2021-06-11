@@ -470,7 +470,7 @@ class TuckeyGandHloss(_Loss):
         lkh = g * z + h * z ** 2 + torch.log(h)
         lkh = lkh + torch.log(z * Tuckey_g_h_inverse.tuckey_g_h(z, g, h))
         lkh = lkh + z ** 2 / 2
-        lkh = lkh + torch.log(sigma)
+        lkh = lkh + torch.log(sigma + 0.1)
         lkh = lkh.mean()
         print('Debugging:', lkh.item())
         return lkh
