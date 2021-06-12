@@ -417,6 +417,7 @@ class Tuckey_g_h_inverse(Function):
         node_values = Tuckey_g_h_inverse.tuckey_g_h(nodes, new_g, new_h)
         i_node = torch.argmax((z_tilda <= node_values) * 1., dim=-1,
                               keepdim=True)
+        i_node[z_tilda > node_values[..., -1:]] = 99
         nodes = nodes.flatten()
         z = nodes[i_node]
         z = z.reshape(init_shape)
@@ -435,7 +436,7 @@ class Tuckey_g_h_inverse(Function):
 
     @staticmethod
     def d_tau_d_g(z, g, h):
-        out =  - 1 / g * Tuckey_g_h_inverse.tuckey_g_h(z, g, h)
+        out = - 1 / g * Tuckey_g_h_inverse.tuckey_g_h(z, g, h)
         out = out + 1 / g * z * torch.exp(g * z + 1 / 2 * h * z ** 2)
         return out
 
@@ -465,12 +466,13 @@ class TuckeyGandHloss(_Loss):
 
     def forward(self, input, target):
         epsilon, sigma, g, h = torch.split(input, self.n_target_channels, dim=1)
-        z_tilda = (target - epsilon) / (sigma + 0.1)
+        z_tilda = (target - epsilon) / sigma
         z = self.inverse_tuckey.apply(z_tilda, g, h)
         lkh = torch.log(
             h * z * 1 / g * torch.expm1(g * z) * torch.exp(h * z ** 2 / 2)
             + torch.exp(g * z + 1 / 2 * h * z ** 2)
         )
+        lkh = lkh + torch.log(sigma)
         lkh = lkh.mean()
         print('Debugging:', lkh.item())
         return lkh
@@ -490,13 +492,23 @@ class TuckeyGandHloss(_Loss):
 if __name__ == '__main__':
     input = np.random.rand(1, 8, 3, 3)
     input[:, [0, 1, 4, 5]] -= 0.5
-    input = torch.tensor(input)
+    input = torch.tensor(input) * 100
     input.requires_grad = True
     target = (np.random.rand(1, 2, 3, 3) - 0.5) * 20
     target = torch.tensor(target)
     tgh = TuckeyGandHloss()
-    o = tgh(input, target)
-    print(o)
+    z = tgh(input, target)
+    print(z)
+    for i in range(10000):
+        print(i)
+        z.backward()
+        input = input - 0.001 * input.grad
+        input = torch.tensor(input)
+        input.requires_grad = True
+        target = np.random.randn(1, 2, 3, 3) * 2 - 10
+        target = torch.tensor(target)
+        z = tgh.forward(input, target)
+        print(z)
 
 
 a = 0
@@ -507,7 +519,7 @@ if 1 == a:
         print(i)
         z.backward()
         input = input - 0.001 * input.grad
-        input = torch.tensor(input)
+        input = torch.tensor(input) * 10
         input.requires_grad = True
         target = np.random.randn(1, 2, 3, 3) * 2 - 10
         target = torch.tensor(target)
