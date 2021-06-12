@@ -472,6 +472,7 @@ class TuckeyGandHloss(_Loss):
             h * z * 1 / g * torch.expm1(g * z) * torch.exp(h * z ** 2 / 2)
             + torch.exp(g * z + 1 / 2 * h * z ** 2)
         )
+        lkh += z_tilda ** 2
         lkh = lkh + torch.log(sigma)
         lkh = lkh.mean()
         print('Debugging:', lkh.item())
@@ -492,23 +493,14 @@ class TuckeyGandHloss(_Loss):
 if __name__ == '__main__':
     input = np.random.rand(1, 8, 3, 3)
     input[:, [0, 1, 4, 5]] -= 0.5
-    input = torch.tensor(input) * 100
+    input = torch.tensor(input) * 3
     input.requires_grad = True
-    target = (np.random.rand(1, 2, 3, 3) - 0.5) * 20
+    target = (np.random.rand(1, 2, 3, 3) - 0.5) * 1
     target = torch.tensor(target)
     tgh = TuckeyGandHloss()
     z = tgh(input, target)
     print(z)
-    for i in range(10000):
-        print(i)
-        z.backward()
-        input = input - 0.001 * input.grad
-        input = torch.tensor(input)
-        input.requires_grad = True
-        target = np.random.randn(1, 2, 3, 3) * 2 - 10
-        target = torch.tensor(target)
-        z = tgh.forward(input, target)
-        print(z)
+
 
 
 a = 0
