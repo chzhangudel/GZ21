@@ -408,8 +408,8 @@ class Tuckey_g_h_inverse(Function):
 
     @staticmethod
     def forward(ctx, z_tilda, g, h):
-        nodes = torch.linspace(-10, 10, 100, device=z_tilda.device)
-        nodes = nodes.reshape([1, ] * z_tilda.ndim + [100, ])
+        nodes = torch.linspace(-5, 5, 1000, device=z_tilda.device)
+        nodes = nodes.reshape([1, ] * z_tilda.ndim + [1000, ])
         new_g = g.unsqueeze(-1)
         new_h = h.unsqueeze(-1)
         init_shape = z_tilda.shape
@@ -417,7 +417,7 @@ class Tuckey_g_h_inverse(Function):
         node_values = Tuckey_g_h_inverse.tuckey_g_h(nodes, new_g, new_h)
         i_node = torch.argmax((z_tilda <= node_values) * 1., dim=-1,
                               keepdim=True)
-        i_node[z_tilda > node_values[..., -1:]] = 99
+        i_node[z_tilda > node_values[..., -1:]] = 999
         nodes = nodes.flatten()
         z = nodes[i_node]
         z = z.reshape(init_shape)
@@ -430,8 +430,8 @@ class Tuckey_g_h_inverse(Function):
         if grad_output is None:
             return None
         d_input = 1 / Tuckey_g_h_inverse.d_tau_d_z(z, g, h)
-        d_g = 1 / Tuckey_g_h_inverse.d_tau_d_g(z, g, h)
-        d_h = 1 / Tuckey_g_h_inverse.d_tau_d_h(z, g, h)
+        d_g = - Tuckey_g_h_inverse.d_tau_d_g(z, g, h) * d_input
+        d_h = - Tuckey_g_h_inverse.d_tau_d_h(z, g, h) * d_input
         return d_input * grad_output, d_g * grad_output, d_h * grad_output
 
     @staticmethod
@@ -472,7 +472,7 @@ class TuckeyGandHloss(_Loss):
             h * z * 1 / g * torch.expm1(g * z) * torch.exp(h * z ** 2 / 2)
             + torch.exp(g * z + 1 / 2 * h * z ** 2)
         )
-        lkh += z_tilda ** 2
+        lkh = lkh + z_tilda ** 2
         lkh = lkh + torch.log(sigma)
         lkh = lkh.mean()
         print('Debugging:', lkh.item())
@@ -491,15 +491,25 @@ class TuckeyGandHloss(_Loss):
 
 
 if __name__ == '__main__':
-    input = np.random.rand(1, 8, 3, 3)
-    input[:, [0, 1, 4, 5]] -= 0.5
-    input = torch.tensor(input) * 3
+    input = np.random.rand(1, 4, 1, 1)
+    input[:, [0, 2]] -= 0.5
+    input = torch.tensor(input)
     input.requires_grad = True
-    target = (np.random.rand(1, 2, 3, 3) - 0.5) * 1
+    target = (np.random.rand(1, 1, 1, 1) - 0.5)
     target = torch.tensor(target)
-    tgh = TuckeyGandHloss()
+    tgh = TuckeyGandHloss(n_target_channels=1)
     z = tgh(input, target)
     print(z)
+
+    from torch.autograd import gradcheck
+
+    # gradcheck takes a tuple of tensors as input, check if your gradient
+    # evaluated with these tensors are close enough to numerical
+    # approximations and returns True if they all verify this condition.
+    target.requires_grad = True
+
+    test2 = gradcheck(tgh.forward, (input, target), eps=0.005, atol=0.01)
+    print(test2)
 
 
 
@@ -513,7 +523,7 @@ if 1 == a:
         input = input - 0.001 * input.grad
         input = torch.tensor(input) * 10
         input.requires_grad = True
-        target = np.random.randn(1, 2, 3, 3) * 2 - 10
+        target = np.random.randn(1, 2, 3, 3)
         target = torch.tensor(target)
         z = ql.forward(input, target)
         print(ql.predict(input)[:, 0])
