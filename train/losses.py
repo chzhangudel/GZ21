@@ -473,7 +473,7 @@ class TuckeyGandHloss(_Loss):
             h * z * 1 / g * torch.expm1(g * z) * torch.exp(h * z ** 2 / 2)
             + torch.exp(g * z + 1 / 2 * h * z ** 2)
         )
-        lkh = lkh + 1 / 2 * z_tilda ** 2
+        lkh = lkh + 1 / 2 * z ** 2
         lkh = lkh - torch.log(beta)
         lkh = lkh.mean()
         return lkh
