@@ -475,7 +475,6 @@ class TuckeyGandHloss(_Loss):
         lkh = lkh + z_tilda ** 2
         lkh = lkh + torch.log(sigma)
         lkh = lkh.mean()
-        print('Debugging:', lkh.item())
         return lkh
 
     @property
@@ -483,11 +482,9 @@ class TuckeyGandHloss(_Loss):
         return [2, 3, 6, 7]
 
     def predict(self, input):
+        """Note that epsilon is not the expectation"""
         epsilon, sigma, g, h = torch.split(input, self.n_target_channels, dim=1)
-        out = (epsilon + sigma / (g * torch.sqrt(1 - h)) *
-               (torch.exp(g**2 / (2 * (1 - h))) - 1))
-        out[out.isnan()] = 0.
-        return out
+        return epsilon
 
 
 if __name__ == '__main__':
