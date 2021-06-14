@@ -483,11 +483,7 @@ class TuckeyGandHloss(_Loss):
 
     def predict(self, input):
         epsilon, sigma, g, h = torch.split(input, self.n_target_channels, dim=1)
-        out = (epsilon + sigma / (g * torch.sqrt(1 - h)) *
-               (torch.exp(g**2 / (2 * (1 - h))) - 1))
-        out[out.isnan()] = 0.
-        out[out.isinf()] = 0.
-        return out
+        return epsilon
 
 
 if __name__ == '__main__':
