@@ -466,6 +466,7 @@ class TuckeyGandHloss(_Loss):
 
     def forward(self, input, target):
         epsilon, sigma, g, h = torch.split(input, self.n_target_channels, dim=1)
+        g, h = self._transform_g_h(g, h)
         z_tilda = (target - epsilon) / sigma
         z = self.inverse_tuckey.apply(z_tilda, g, h)
         lkh = torch.log(
@@ -483,7 +484,11 @@ class TuckeyGandHloss(_Loss):
 
     def predict(self, input):
         epsilon, sigma, g, h = torch.split(input, self.n_target_channels, dim=1)
+        g, h = self._transform_g_h(g, h)
         return epsilon
+
+    def _transform_g_h(self, g, h):
+        return g / 3., h / 3.
 
 
 if __name__ == '__main__':
