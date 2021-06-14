@@ -488,7 +488,7 @@ class TuckeyGandHloss(_Loss):
         return epsilon
 
     def _transform_g_h(self, g, h):
-        return g / 3., h / 3.
+        return g / 10., h / 10.
 
 
 if __name__ == '__main__':
