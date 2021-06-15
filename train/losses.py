@@ -418,10 +418,10 @@ class Tuckey_g_h_inverse(Function):
         if torch.any(node_values.isnan()):
             indices = torch.nonzero(node_values.isnan())
             first_index = indices[0]
-            raise RuntimeError('Got nan in node values. Corresponding ' \
+            raise RuntimeError('Got nan in node values. Corresponding '
                                'parameters were g = ', new_g[first_index],
                                ', h = ', new_h[first_index], 'z = ',
-                               nodes[first_index])
+                               nodes.flatten()[first_index[-1]])
 
         assert not torch.any(node_values.isinf()), "Got inf in node values"
         i_node = torch.argmax((z_tilda <= node_values) * 1., dim=-1,
