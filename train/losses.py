@@ -408,7 +408,7 @@ class Tuckey_g_h_inverse(Function):
 
     @staticmethod
     def forward(ctx, z_tilda, g, h):
-        nodes = torch.linspace(-10, 10, 1000, device=z_tilda.device)
+        nodes = torch.linspace(-5, 5, 1000, device=z_tilda.device)
         nodes = nodes.reshape([1, ] * z_tilda.ndim + [1000, ])
         new_g = g.unsqueeze(-1)
         new_h = h.unsqueeze(-1)
@@ -446,7 +446,7 @@ class Tuckey_g_h_inverse(Function):
 
     @staticmethod
     def d_tau_d_z(z, g, h):
-        out = torch.exp(g * z) * torch.exp(h * z ** 2 / 2)
+        out = torch.exp(g * z + h * z ** 2 / 2)
         out = out + h * z * Tuckey_g_h_inverse.tuckey_g_h(z, g, h)
         return out
 
