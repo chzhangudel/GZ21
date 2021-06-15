@@ -500,7 +500,9 @@ class TuckeyGandHloss(_Loss):
         return epsilon
 
     def _transform_g_h(self, g, h):
-        return g / 20., h / 20.
+        g = (torch.sigmoid(g) - 0.5) * 2
+        h = torch.sigmoid(h)
+
 
 
 if __name__ == '__main__':
