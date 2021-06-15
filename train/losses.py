@@ -404,11 +404,12 @@ class Tuckey_g_h_inverse(Function):
 
     @staticmethod
     def tuckey_g_h(z, g, h):
-        return 1 / g * torch.expm1(g * z) * torch.exp(h * z ** 2 / 2)
+        out = 1 / g * torch.expm1(g * z) * torch.exp(h * z ** 2 / 2)
+        out[g == 0.] = z * torch.exp(h * z ** 2 / 2)
 
     @staticmethod
     def forward(ctx, z_tilda, g, h):
-        nodes = torch.linspace(-3, 3, 1000, device=z_tilda.device)
+        nodes = torch.linspace(-4, 4, 1000, device=z_tilda.device)
         nodes = nodes.reshape([1, ] * z_tilda.ndim + [1000, ])
         new_g = g.unsqueeze(-1)
         new_h = h.unsqueeze(-1)
@@ -486,12 +487,12 @@ class TuckeyGandHloss(_Loss):
                    + torch.exp(g * z + 1 / 2 * h * z ** 2))
         assert not torch.any(for_log.isnan()), "Got nan values in for_log"
         assert not torch.any(for_log.isinf()), "Got inf values in for inf"
-        print("Max of g", g.abs().max().item())
-        print("Min of g", g.abs().min().item())
-        print("Max of h", h.max().item())
-        print("Min of h", h.min().item())
-        print("Max of for_log", for_log.max().item())
-        print("Min of for_log", for_log.min().item())
+        # print("Max of g", g.abs().max().item())
+        # print("Min of g", g.abs().min().item())
+        # print("Max of h", h.max().item())
+        # print("Min of h", h.min().item())
+        # print("Max of for_log", for_log.max().item())
+        # print("Min of for_log", for_log.min().item())
         lkh = torch.log(for_log)
         lkh = lkh + 1 / 2 * z ** 2
         lkh = lkh - torch.log(beta)
