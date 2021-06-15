@@ -415,6 +415,8 @@ class Tuckey_g_h_inverse(Function):
         init_shape = z_tilda.shape
         z_tilda = z_tilda.unsqueeze(-1)
         node_values = Tuckey_g_h_inverse.tuckey_g_h(nodes, new_g, new_h)
+        assert not torch.any(node_values.isnan()), "Got nan in node values"
+        assert not torch.any(node_values.isinf()), "Got inf in node values"
         i_node = torch.argmax((z_tilda <= node_values) * 1., dim=-1,
                               keepdim=True)
         i_node[z_tilda > node_values[..., -1:]] = 999
@@ -469,10 +471,20 @@ class TuckeyGandHloss(_Loss):
         g, h = self._transform_g_h(g, h)
         z_tilda = (target - epsilon) * beta
         z = self.inverse_tuckey.apply(z_tilda, g, h)
-        lkh = torch.log(
-            h * z * 1 / g * torch.expm1(g * z) * torch.exp(h * z ** 2 / 2)
-            + torch.exp(g * z + 1 / 2 * h * z ** 2)
-        )
+        assert not torch.any(z.isnan()), "Got nan values in the inversion"
+        assert not torch.any(z.isinf()), "Got inf values in the inversion"
+        for_log = (h * z * 1 / g * torch.expm1(g * z) *
+                   torch.exp(h * z ** 2 / 2)
+                   + torch.exp(g * z + 1 / 2 * h * z ** 2))
+        assert not torch.any(for_log.isnan()), "Got nan values in for_log"
+        assert not torch.any(for_log.isinf()), "Got inf values in for inf"
+        print("Max of g", g.abs().max().item())
+        print("Min of g", g.abs().min().item())
+        print("Max of h", h.max().item())
+        print("Min of h", h.min().item())
+        print("Max of for_log", for_log.max().item())
+        print("Min of for_log", for_log.min().item())
+        lkh = torch.log(for_log)
         lkh = lkh + 1 / 2 * z ** 2
         lkh = lkh - torch.log(beta)
         lkh = lkh.mean()
