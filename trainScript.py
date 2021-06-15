@@ -10,7 +10,7 @@ import mlflow
 import os.path
 import tempfile
 
-
+import torch
 from torch.utils.data import DataLoader, Subset
 import torch.optim as optim
 from torch.optim.lr_scheduler import MultiStepLR
@@ -45,6 +45,8 @@ import copy
 
 from utils import TaskInfo
 from dask.diagnostics import ProgressBar
+
+torch.autograd.set_detect_anomaly(True)
 
 def negative_int(value: str):
     return -int(value)
