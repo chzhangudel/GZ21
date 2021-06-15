@@ -404,8 +404,9 @@ class Tuckey_g_h_inverse(Function):
 
     @staticmethod
     def tuckey_g_h(z, g, h):
+        g[g == 0.] = torch.finfo.eps
         out = 1 / g * torch.expm1(g * z) * torch.exp(h * z ** 2 / 2)
-        out[g == 0.] = z * torch.exp(h * z ** 2 / 2)
+        return out
 
     @staticmethod
     def forward(ctx, z_tilda, g, h):
