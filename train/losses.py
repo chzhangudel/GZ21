@@ -417,7 +417,7 @@ class Tuckey_g_h_inverse(Function):
         node_values = Tuckey_g_h_inverse.tuckey_g_h(nodes, new_g, new_h)
         if torch.any(node_values.isnan()):
             indices = torch.nonzero(node_values.isnan())
-            first_index = indices[0]
+            first_index = list(indices[0])
             print(first_index)
             print(g[first_index[:-1]])
             print(h[first_index[:-1]])
