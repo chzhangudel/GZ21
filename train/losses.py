@@ -404,12 +404,12 @@ class Tuckey_g_h_inverse(Function):
 
     @staticmethod
     def tuckey_g_h(z, g, h):
-        g[g == 0.] = torch.finfo.eps
         out = 1 / g * torch.expm1(g * z) * torch.exp(h * z ** 2 / 2)
         return out
 
     @staticmethod
     def forward(ctx, z_tilda, g, h):
+        g[g == 0.] = torch.finfo().eps
         nodes = torch.linspace(-4, 4, 1000, device=z_tilda.device)
         nodes = nodes.reshape([1, ] * z_tilda.ndim + [1000, ])
         new_g = g.unsqueeze(-1)
