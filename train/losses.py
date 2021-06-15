@@ -404,7 +404,7 @@ class Tuckey_g_h_inverse(Function):
 
     @staticmethod
     def tuckey_g_h(z, g, h):
-        return 1 / g * (torch.exp(g * z) - 1) * torch.exp(h * z ** 2 / 2)
+        return 1 / g * torch.expm1(g * z) * torch.exp(h * z ** 2 / 2)
 
     @staticmethod
     def forward(ctx, z_tilda, g, h):
@@ -509,7 +509,7 @@ if __name__ == '__main__':
     # approximations and returns True if they all verify this condition.
     target.requires_grad = True
 
-    test2 = gradcheck(tgh.forward, (input, target), eps=0.005, atol=0.01)
+    test2 = gradcheck(tgh.forward, (input, target), eps=0.05, atol=0.01)
     print(test2)
 
 
