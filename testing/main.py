@@ -185,7 +185,8 @@ try:
     n_targets = dataset.n_targets
     criterion = getattr(modules['__main__'], loss_cls_name)(n_targets)
 except AttributeError as e:
-    raise type(e)('Could not find the loss class used for training.')
+    raise type(e)('Could not find the loss class used for training, ',
+                  loss_cls_name)
 
 # On first testdataset load the model. Or if we train to reset the model
 logging.info('Creating the neural network model')
