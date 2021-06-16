@@ -44,7 +44,6 @@ from other.telegram import send_message
 from data.xrtransforms import SeasonalStdizer
 import models.submodels
 
-send_message("Starting to run testing!")
 
 # Parse arguments
 parser = argparse.ArgumentParser()
