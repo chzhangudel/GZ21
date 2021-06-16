@@ -29,7 +29,7 @@ from data.datasets import (RawDataFromXrDataset, DatasetTransformer,
                            Subset_, DatasetWithTransform, ComposeTransforms,
                            MultipleTimeIndices, DatasetPartitioner)
 from train.base import Trainer
-from train.losses import *
+import train.losses
 from testing.utils import create_large_test_dataset, BatchSampler, pickle_artifact
 from testing.metrics import MSEMetric, MaxMetric
 from models.utils import load_model_cls
@@ -183,7 +183,7 @@ for metric in metrics.values():
 # Set up training criterion and select parameters to train
 try:
     n_targets = dataset.n_targets
-    criterion = getattr(modules['__main__'], loss_cls_name)(n_targets)
+    criterion = getattr(train.losses, loss_cls_name)(n_targets)
 except AttributeError as e:
     raise type(e)('Could not find the loss class used for training, ',
                   loss_cls_name)
