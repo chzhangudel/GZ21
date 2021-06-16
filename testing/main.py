@@ -20,6 +20,8 @@ import os.path
 import tempfile
 import logging
 
+import torch
+import numpy as np
 import mlflow
 from torch.utils.data import DataLoader
 import xarray as xr
