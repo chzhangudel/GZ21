@@ -537,19 +537,3 @@ if __name__ == '__main__':
     test2 = gradcheck(tgh.forward, (input, target), eps=0.05, atol=0.01)
     print(test2)
 
-
-
-a = 0
-if 1 == a:
-    ql = QuantileLoss(2, 10)
-    z = ql.forward(input, target)
-    for i in range(1000000):
-        print(i)
-        z.backward()
-        input = input - 0.001 * input.grad
-        input = torch.tensor(input) * 10
-        input.requires_grad = True
-        target = np.random.randn(1, 2, 3, 3)
-        target = torch.tensor(target)
-        z = ql.forward(input, target)
-        print(ql.predict(input)[:, 0])
