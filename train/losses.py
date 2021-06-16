@@ -504,6 +504,11 @@ class TuckeyGandHloss(_Loss):
     def precision_indices(self):
         return [2, 3]
 
+    @property
+    def channel_names(self):
+        return ['epsilon_Sx', 'epsilon_Sy', 'beta_Sx', 'beta_Sy',
+                'g_Sx', 'g_Sy', 'h_Sx', 'h_Sy']
+
     def predict(self, input):
         epsilon, sigma, g, h = torch.split(input, self.n_target_channels, dim=1)
         g, h = self._transform_g_h(g, h)
