@@ -420,7 +420,6 @@ class Tuckey_g_h_inverse(Function):
         for i in range(100):
             old_middle = middle
             middle = (min_ + max_) / 2.
-            print(i, middle, min_, max_, middle - min_)
             if torch.all(abs(middle - old_middle) <= torch.finfo(
                     middle.dtype).eps):
                 break
