@@ -409,6 +409,31 @@ class Tuckey_g_h_inverse(Function):
 
     @staticmethod
     def forward(ctx, z_tilda, g, h):
+        """New inverse method based on dichotomial algorithm. Finds true
+        inverse up to numerical precision"""
+        g[g == 0.] = torch.finfo().eps
+        min_ = -20
+        max_ = 20
+        min_ = torch.ones_like(z_tilda) * min_
+        max_ = torch.ones_like(z_tilda) * max_
+        middle = min_
+        for i in range(100):
+            old_middle = middle
+            middle = (min_ + max_) / 2.
+            print(i, middle, min_, max_, middle - min_)
+            if torch.all(abs(middle - old_middle) <= torch.finfo(
+                    middle.dtype).eps):
+                break
+            value = Tuckey_g_h_inverse.tuckey_g_h(middle, g, h)
+            max_[z_tilda < value] = middle[z_tilda < value]
+            min_[z_tilda > value] = middle[z_tilda > value]
+        middle = (min_ + max_) / 2
+        middle[torch.isnan(z_tilda)] = np.nan
+        ctx.save_for_backward(middle, g, h)
+        return middle
+
+    @staticmethod
+    def old_forward(ctx, z_tilda, g, h):
         g[g == 0.] = torch.finfo().eps
         nodes = torch.linspace(-4, 4, 1000, device=z_tilda.device)
         nodes = nodes.reshape([1, ] * z_tilda.ndim + [1000, ])
@@ -515,8 +540,8 @@ class TuckeyGandHloss(_Loss):
         return epsilon
 
     def _transform_g_h(self, g, h):
-        g = (torch.sigmoid(g / 10.) - 0.5) * 2
-        h = torch.sigmoid((h / 10. - 1.))
+        g = (torch.sigmoid(g) - 0.5) * 4
+        h = torch.sigmoid((h - 2.))
         return g, h
 
 
@@ -539,6 +564,6 @@ if __name__ == '__main__':
     # approximations and returns True if they all verify this condition.
     target.requires_grad = True
 
-    test2 = gradcheck(tgh.forward, (input, target), eps=0.05, atol=0.01)
+    test2 = gradcheck(tgh.forward, (input, target), eps=0.01, atol=0.01)
     print(test2)
 
