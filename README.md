@@ -85,7 +85,12 @@ This uses the last version of the code on github rather than the local version. 
 - run_id: id of the run that generated the forcing data that will be used for training.
 - loss_cls_name: name of the class that defines the loss. This class should be defined in train/losses.py in order for the script to find it.
 
-ADD the list of possible options for the loss / neural network model
 
 Another important way to modify the way the script runs consists in modifying the domains used for training. These are defined in training_subdomain.yaml in terms
 of their coordinates.
+
+
+ADD the list of possible options for the loss / neural network model
+Create separate mlflow experiments for Laure
+Clean up experiments
+Give read x access to Laure
