@@ -94,3 +94,4 @@ ADD the list of possible options for the loss / neural network model
 Create separate mlflow experiments for Laure
 Clean up experiments
 Give read x access to Laure
+Make sure there is backup for stuff on scratch
