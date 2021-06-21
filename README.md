@@ -16,6 +16,43 @@ where the training data will be collected for training. Different runs are also 
 The testing type uses a model from the training type experiment and applies it, without further training, to global data. The global data used for the test
 is, again, specified as a run from the data type experiment.
 
+## Specific to Greene implementation
+
+To list the currently existing experiments, one can follow this procedure:
+
+- Start a singularity container with the appropriate image via the following command:
+```
+singularity exec --nv --overlay /scratch/ag7531/overlay2 /scratch/work/public/singularity/cuda11.0-cudnn8-devel-ubuntu18.04.sif /bin/bash
+```
+- Activate conda:
+```
+source /ext3/env.sh
+```
+- Activate the subgrid conda environment:
+```
+conda activate subgrid
+```
+
+Finally, start python, import the mlflow module and call the mlflow method that allows to list expriments:
+```
+from mlflow.tracking import client
+cl = client.MlflowClient()
+for e in cl.list_experiments():
+    print(e.experiment_id, e.name)
+```
+
+If nothing shows, return to bash, create the following environment variable to tell mlflow where to look for experiments,
+```
+export MLFLOW_TRACKING_URI=/scratch/ag7531/mlruns
+```
+
+and run the python lines again.
+
+Right now, there are many experiments, including some old ones which are no more used. But the most important ones are:
+- for data: data-global, with id 19
+- for models: modelsv1, with id 21
+- for testing: test_global, with id 20
+
 # Run data code
 
 Generating coarse velocity data and diagnosed forcing is achieved by running the following command:
