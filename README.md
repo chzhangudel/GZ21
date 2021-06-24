@@ -83,11 +83,46 @@ This uses the last version of the code on github rather than the local version. 
 - experiment-name: name of the experiment under which the run will be recorded. In particular, this will be used to recover the trained neural network.
 - exp_id: id of the experiment containing the run that generated the forcing data. 
 - run_id: id of the run that generated the forcing data that will be used for training.
-- loss_cls_name: name of the class that defines the loss. This class should be defined in train/losses.py in order for the script to find it.
+- loss_cls_name: name of the class that defines the loss. This class should be defined in train/losses.py in order for the script to find it. Currently the
+main available options are:
+    - HeteroskedasticGaussianLossV2: this corresponds to the loss used in the paper
+    - BimodalGaussianLoss: a Gaussian loss defined using two Gaussian modes
+- model_module_name: name of the module that contains the class defining the NN used
+- model_cls_name: name of the class defining the NN used, should be defined in the module specified by model_module_name
 
 
 Another important way to modify the way the script runs consists in modifying the domains used for training. These are defined in training_subdomain.yaml in terms
 of their coordinates.
+
+# Run training code
+Testing is carried out in an interactive sbatch run, where we ask for a GPU:
+
+```
+srun -t1:30:00 --mem=40000 --gres=gpu:1 --pty /bin/bash
+```
+
+We then start our singularity container and activate the subgrid conda environment:
+
+- Start a singularity container with the appropriate image via the following command:
+```
+singularity exec --nv --overlay /scratch/ag7531/overlay2 /scratch/work/public/singularity/cuda11.0-cudnn8-devel-ubuntu18.04.sif /bin/bash
+```
+- Activate conda:
+```
+source /ext3/env.sh
+```
+- Activate the subgrid conda environment:
+```
+conda activate subgrid
+```
+
+We then cd to /home/ag7531/code/subgrid and run:
+
+```
+python -m testing.main.py --n_splits 50 --batch_size 2 --n_test_times 7300
+```
+
+
 
 
 ADD the list of possible options for the loss / neural network model
@@ -95,3 +130,4 @@ Create separate mlflow experiments for Laure
 Clean up experiments
 Give read x access to Laure
 Make sure there is backup for stuff on scratch
+Update analysis code so that it produces the nice figures in the paper
