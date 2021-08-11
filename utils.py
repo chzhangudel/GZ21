@@ -10,6 +10,9 @@ import mlflow
 from mlflow.tracking import client
 import pandas as pd
 import pickle
+import subgrid.models as models
+import sys
+sys.modules['models'] = models
 
 class TaskInfo:
     def __init__(self, name: str):

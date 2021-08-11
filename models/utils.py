@@ -6,12 +6,13 @@ Created on Tue Jun  9 17:46:54 2020
 @author: arthur
 """
 import importlib
-from utils import select_experiment, select_run, pickle_artifact
-import train
+from subgrid.utils import select_experiment, select_run, pickle_artifact
+import subgrid.train.losses
+import subgrid.train as train
 import logging
 import torch
 import mlflow
-
+import subgrid.models as models
 
 def load_model_cls(model_module_name: str, model_cls_name: str):
     try:
@@ -29,9 +30,9 @@ def select_and_load():
     """Prompts the user to select a model from those available, load its
     parameters and returns it"""
     models_experiment_id, _ = select_experiment('21')
-    cols = ['metrics.test loss', 'start_time', 'params.time_indices',
+    cols = ['metrics.test loss', 'params.time_indices',
             'params.model_cls_name', 'params.source.run_id', 'params.submodel']
-    model_run = select_run(sort_by='start_time', cols=cols,
+    model_run = select_run(cols=cols,
                            experiment_ids=[models_experiment_id, ],
                            default_selection=0)
     model_module_name = model_run['params.model_module_name']
