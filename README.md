@@ -92,9 +92,9 @@ main available options are:
 
 
 Another important way to modify the way the script runs consists in modifying the domains used for training. These are defined in training_subdomain.yaml in terms
-of their coordinates.
+of their coordinates. Note that at run time domains will be truncated to the size of the smallest domain in terms of number of points.
 
-# Run training code
+# Run Testing code
 Testing is carried out in an interactive sbatch run, where we ask for a GPU:
 
 ```
