@@ -55,6 +55,12 @@ Right now, there are many experiments, including some old ones which are no more
 
 # Run data code
 
+
+Simple way: modify $cmd in /home/ag7531/jobs/job-forcingdata.sh with the parameters described further down (e.g. loss_cls_name etc) and run
+```
+sbatch /home/ag7531/jobs/job-forcingdata.sh
+```
+
 Generating coarse velocity data and diagnosed forcing is achieved by running the following command:
 
 ```
@@ -70,6 +76,11 @@ either training or testing.
 The rest of the CLI parameters can be kept as such.
 
 # Run training code
+
+Simple way: modify $cmd in /home/ag7531/jobs/job-training3.2.sh with the parameters described further down (e.g. loss_cls_name etc) and run
+```
+sbatch /home/ag7531/jobs/job-training3.2.sh
+```
 
 Training is achieved by running trainScript.py. This scripts accepts a range of CLI parameters. The simplest way to run the code is via the following MLFLOW command,
 which runs this script as an MLFLOW project.
