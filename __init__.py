@@ -18,21 +18,30 @@ def load_paper_net(device: str = 'gpu'):
     """
         Load the neural network from the paper
     """
+    print('In load_paper_net()')
     model_module_name = 'subgrid.models.models1'
     model_cls_name = 'FullyCNN'
     model_cls = load_model_cls(model_module_name, model_cls_name)
+    print('After load_model_cls()')
     net = model_cls(2, 4)
+    print('After net')
     if device == 'cpu':
         transformation = torch.load('./final_transformation.pth')
+        print('After torch.load()')
     else:
         transformation = pickle_artifact(MODEL_RUN_ID, 'models/transformation')
     net.final_transformation = transformation
+    print('After transformation')
 
     # Load parameters of pre-trained model
+    print('Loading the neural net parameters')
     logging.info('Loading the neural net parameters')
     client = mlflow.tracking.MlflowClient()
-    model_file = client.download_artifacts(MODEL_RUN_ID,
-                                           'models/trained_model.pth')
+    print('After mlflow.tracking.MlflowClient()')
+#    model_file = client.download_artifacts(MODEL_RUN_ID,
+#                                           'nn_weights_cpu.pth')
+    model_file = './trained_model.pth'
+    print('After download_artifacts()')
     if device == 'cpu':
         print('Device: CPU')
         model_file = './nn_weights_cpu.pth'
