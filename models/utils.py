@@ -6,13 +6,13 @@ Created on Tue Jun  9 17:46:54 2020
 @author: arthur
 """
 import importlib
-from subgrid.utils import select_experiment, select_run, pickle_artifact
-import subgrid.train.losses
-import subgrid.train as train
+from subgrid2.utils import select_experiment, select_run, pickle_artifact
+import subgrid2.train.losses
+import subgrid2.train as train
 import logging
 import torch
 import mlflow
-import subgrid.models as models
+import subgrid2.models as models
 
 def load_model_cls(model_module_name: str, model_cls_name: str):
     try:

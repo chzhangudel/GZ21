@@ -7,6 +7,7 @@ TODO list
 balance the weights when mixing data sets
 
 """
+from data.landmasks import CoarseGridLandMask
 import torch
 from torch.utils.data import Dataset, DataLoader, ConcatDataset, Subset
 import numpy as np
@@ -439,8 +440,23 @@ class RawDataFromXrDataset(Dataset):
 
     def add_input(self, varname: str):
         self._check_varname(varname)
+        # if 'landmask' in self.input_arrays:
+        #   self._input_arrays.append(varname)
+        #   self.xr_dataset[varname]=self.xr_dataset[varname]*self.xr_dataset['landmask']
+        # else:
         self._input_arrays.append(varname)
 
+    def add_landmask_input(self,cnn_field_of_view=1):
+        xmin = self.xr_dataset.xu_ocean[0].values
+        xmax = self.xr_dataset.xu_ocean[-1].values
+        ymin = self.xr_dataset.yu_ocean[0].values
+        ymax = self.xr_dataset.yu_ocean[-1].values
+        landmask = CoarseGridLandMask(cnn_field_of_view=cnn_field_of_view).read_from_file().default
+        landmask.name = 'landmask'
+        landmask = landmask.sel(xu_ocean = slice(xmin,xmax),yu_ocean = slice(ymin,ymax))
+        self.xr_dataset = xr.merge([landmask,self.xr_dataset])
+        self._input_arrays.append(landmask.name)
+        
     @property
     def width(self):
         dims = self.xr_dataset.dims
@@ -613,8 +629,8 @@ class DatasetWithTransform:
     def add_targets_transform_from_model(self, model):
         """Automatically reshapes the targets of the dataset to match
         the shape of the output of the model."""
-        output_height = model.output_height(self.height, self.width)
-        output_width = model.output_width(self.height, self.width)
+        output_height = self.height - 20 #model.output_height(self.height, self.width)
+        output_width = self.width - 20#model.output_width(self.height, self.width)
         transform = CropToNewShape(output_height, output_width)
         self.add_targets_transform(transform)
         return transform
@@ -713,12 +729,17 @@ class ConcatDataset_(ConcatDataset):
             crop_transform = CropToNewShape(self.height, self.width)
             dataset.add_features_transform(crop_transform)
             dataset.add_targets_transform(crop_transform)
+    # def __getitem__(self,i:int):
+    #     domi = i%len(self.datasets)
+    #     ti = i//len(self.datasets)
+    #     ti = ti % len(self.datasets[domi])
+    #     return self.datasets[domi][ti]
 
-    def __getattr__(self, attr):
-        if hasattr(self.datasets[0], attr):
-            return getattr(self.datasets[0], attr)
-        else:
-            raise AttributeError()
+    # def __getattr__(self, attr):
+    #     if hasattr(self.datasets[0], attr):
+    #         return getattr(self.datasets[0], attr)
+    #     else:
+    #         raise AttributeError()
 
     # def __setattr__(self, attr_name, value):
     #     if 'coord' in attr_name:

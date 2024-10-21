@@ -8,6 +8,7 @@ Created on Tue Jun  9 17:58:33 2020
 import numpy as np
 import xarray as xr
 import torch
+import torch.nn.functional as F
 from torch.utils.data import Sampler
 import progressbar
 import mlflow
@@ -64,10 +65,11 @@ def apply_net(net, test_dataloader, device, save_input=False):
     with torch.no_grad():
         for i, data in enumerate(test_dataloader):
             features, targets = data
+            features_pad = F.pad(input=features, pad=(10, 10, 10, 10), mode='constant', value=0)
             if save_input:
-                input_.append(features)
-            features = features.to(device, dtype=torch.float)
-            prediction = (net(features)).cpu().numpy()
+                input_.append(features_pad)
+            features_pad = features_pad.to(device, dtype=torch.float)
+            prediction = (net(features_pad)).cpu().numpy()
             output.append(prediction)
     if save_input:
         return np.concatenate(output), np.concatenate(input_)

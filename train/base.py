@@ -9,9 +9,8 @@ import torch
 from torch.nn import Module, MSELoss
 from torch.nn.utils import clip_grad_norm_
 from torch.utils.data import DataLoader
-
+from time import time
 from .utils import print_every, RunningAverage
-
 
 class Trainer:
     """Training object for a neural network on a specific device.
@@ -38,17 +37,18 @@ class Trainer:
         they are only reported on the test dataset.
     """
 
-    def __init__(self, net: Module, device: torch.device):
+    def __init__(self, net: Module, device: torch.device,dummy:bool = False):
         self._net = net
         self._device = device
         self._criterion = MSELoss()
         self._metrics = dict()
         self._print_loss_every = 20
         self._locked = False
-        self._early_stopping = 4
+        self._early_stopping = 1e3
         self._best_test_loss = None
         self._counter = 0
-
+        self.dummy = dummy
+        
     @property
     def net(self):
         return self._net
@@ -112,28 +112,54 @@ class Trainer:
         self._locked = True
         running_loss = RunningAverage()
         running_loss_ = RunningAverage()
+        st = time()
         for i_batch, batch in enumerate(dataloader):
             # Zero the gradients
             self.net.zero_grad()
             # Move batch to the GPU (if possible)
             X = batch[0].to(self._device, dtype=torch.float)
             Y = batch[1].to(self._device, dtype=torch.float)
+            # print(X.shape,Y.shape)
+            # RX = torch.randn(X.shape)
+            # RX[X!=0] = 0
+            # Y_hat = self.net(RX)
             Y_hat = self.net(X)
+
             # Compute loss
-            loss = self.criterion(Y_hat, Y)
+            loss =  self.criterion(Y_hat, Y)
+            
+            # torchdict = dict(input =X, true_result = Y, output = Y_hat, loss = loss.detach().item(), **self.net.state_dict())
+            # torch.save(torchdict,f'train_interrupt_{i_batch}_.pth')
+            # raise Exception
+            
+            
             running_loss.update(loss.item(), X.size(0))
             running_loss_.update(loss.item(), X.size(0))
             # Print current loss
             loss_text = 'Loss value {}'.format(running_loss_.average)
+            tr = time()
+            avgtime = (tr-st)/(i_batch+1)
+            loss_text += f',\t avg per batch-time = {avgtime}'
             if print_every(loss_text, self.print_loss_every, i_batch):
                 # Every time we print we reset the running average
                 running_loss_.reset()
             # Backpropagate
             loss.backward()
-            if clip:
+            if clip>0 and clip is not None:
                 clip_grad_norm_(self.net.parameters(), clip)
             # Update parameters
             optimizer.step()
+            # dummy gpu activity to avoid losing the gpu 
+            # bad for the climate, good for business 
+            if self.dummy and torch.cuda.is_available():
+                dummy = torch.zeros([1,2,1000,1000]).to("cuda:0", dtype=torch.float)
+                self.net.eval()
+                with torch.no_grad():
+                    self.net(dummy)
+                self.net.train()
+            # if i_batch==4:
+            #     break
+            #         raise Exception
         # Update the learning rate via the scheduler
         if scheduler is not None:
             scheduler.step()
@@ -168,7 +194,7 @@ class Trainer:
                 # Move batch to GPU
                 X = batch[0].to(self._device, dtype=torch.float)
                 Y = batch[1].to(self._device, dtype=torch.float)
-                Y_hat = self.net(X)
+                Y_hat = self.net(X)                
                 # Compute loss
                 loss = self.criterion(Y_hat, Y)
                 running_loss.update(loss.item(), X.size(0))
@@ -177,7 +203,9 @@ class Trainer:
                 Y_hat = self.criterion.predict(Y_hat)
                 for metric in self.metrics.values():
                     metric.update(Y_hat, Y)
-        test_loss = running_loss.value
+                # if i_batch==4:
+                #     break
+        test_loss = running_loss.average
         # Test early stopping
         if self._best_test_loss is None or test_loss < self._best_test_loss:
             self._best_test_loss = test_loss

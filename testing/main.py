@@ -30,7 +30,7 @@ from train.utils import learning_rates_from_string
 from data.datasets import (RawDataFromXrDataset, DatasetTransformer,
                            Subset_, DatasetWithTransform, ComposeTransforms,
                            MultipleTimeIndices, DatasetPartitioner)
-from train.base import Trainer
+from MOM6.experiments.double_gyre.postprocess.offline_test.subgrid2.train.base_old import Trainer
 import train.losses
 from testing.utils import create_large_test_dataset, BatchSampler, pickle_artifact
 from testing.metrics import MSEMetric, MaxMetric

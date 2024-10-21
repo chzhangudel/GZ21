@@ -28,7 +28,7 @@ from train.utils import (DEVICE_TYPE, learning_rates_from_string,
 from data.utils import load_training_datasets, load_data_from_run
 from testing.utils import create_test_dataset
 from testing.metrics import MSEMetric, MaxMetric
-from train.base import Trainer
+from MOM6.experiments.double_gyre.postprocess.offline_test.subgrid2.train.base_old import Trainer
 import train.losses
 import models.transforms
 

@@ -1,3 +1,6 @@
 mlruns/*
 __pycache__/*
 *.pyc
+*.out
+*.nc
+*.pkl

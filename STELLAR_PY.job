@@ -1,0 +1,18 @@
+#!/bin/bash
+#SBATCH --job-name=MOM6     # create a short name for your job
+#SBATCH -A cimes2
+#SBATCH --nodes=1                # node count
+#SBATCH --ntasks-per-node=1     # number of tasks per node
+#SBATCH --cpus-per-task=1        # cpu-cores per task (>1 if multi-threaded tasks)
+##SBATCH --mem-per-cpu=4G         # memory per cpu-core (4G is default)
+#SBATCH --mem=500G
+#SBATCH --time=12:00:00          # total run time limit (HH:MM:SS)
+#SBATCH --mail-type=begin        # send email when job begins
+#SBATCH --mail-type=end          # send email when job ends
+#SBATCH --mail-user=cheng.zhang@princeton.edu
+
+module purge
+module load anaconda3/2021.5
+conda activate smartsim_gpu2
+
+python offline_test_four_regions_BC.py
