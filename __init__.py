@@ -26,7 +26,7 @@ def load_paper_net(device: str = 'gpu'):
     net = model_cls(2, 4)
     print('After net')
     if device == 'cpu':
-        transformation = torch.load('/scratch/cimes/cz3321/MOM6/MOM6-examples/src/MOM6/config_src/external/ML_Forpy/final_transformation.pth')
+        transformation = torch.load('/scratch/cimes/cz3321/MOM6/MOM6-examples/src/MOM6/config_src/external/ML_Forpy/Forpy_CNN_GZ21/final_transformation.pth')
         print('After torch.load()')
     else:
         transformation = pickle_artifact(MODEL_RUN_ID, 'models/transformation')
@@ -40,11 +40,11 @@ def load_paper_net(device: str = 'gpu'):
     print('After mlflow.tracking.MlflowClient()')
 #    model_file = client.download_artifacts(MODEL_RUN_ID,
 #                                           'nn_weights_cpu.pth')
-    model_file = '/scratch/cimes/cz3321/MOM6/MOM6-examples/src/MOM6/config_src/external/ML_Forpy/trained_model.pth'
+    model_file = '/scratch/cimes/cz3321/MOM6/MOM6-examples/src/MOM6/config_src/external/ML_Forpy/Forpy_CNN_GZ21/trained_model.pth'
     print('After download_artifacts()')
     if device == 'cpu':
         print('Device: CPU')
-        model_file = '/scratch/cimes/cz3321/MOM6/MOM6-examples/src/MOM6/config_src/external/ML_Forpy/nn_weights_cpu.pth'
+        model_file = '/scratch/cimes/cz3321/MOM6/MOM6-examples/src/MOM6/config_src/external/ML_Forpy/Forpy_CNN_GZ21/nn_weights_cpu.pth'
         net.load_state_dict(torch.load(model_file, map_location=torch.device('cpu')))
     else:
         net.load_state_dict(torch.load(model_file))
